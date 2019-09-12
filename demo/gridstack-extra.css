@@ -1,6 +1,21 @@
 .grid-stack > .grid-stack-item {
   min-width: 0 !important;
 }
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 0px;
+  right: 0px;
+  bottom: 0;
+  width: auto;
+  z-index: 0 !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-style: solid;
+  border-color: coral;
+}
+
 .grid-stack > .grid-stack-item[data-gs-width="1"] {
   width: 1.19047619%;
 }
