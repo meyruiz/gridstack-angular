@@ -24,8 +24,19 @@
         .grid-stack-item-content {
             color: #2c3e50;
             text-align: center;
-            background-color: #732145;
+            background: #33c6ff;
         }
+
+        .grid-stack-item-content p {
+            font-weight: bold;
+            line-height: 1.1em;
+            margin: 5px;
+        }
+
+        .grid-stack-item-content p.dimensions {
+            margin: 15px 0;
+        }
+
     </style>
 </head>
 <body ng-app="GridStack" ng-controller="DemoCtrl">
@@ -39,10 +50,16 @@
         <br>
         <div class="row">
             <div class="col-md-12">
-                <div gridstack class="grid-stack grid1" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
+                <div gridstack class="grid-stack grid1 w.status" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
                     <div gridstack-item ng-repeat="w in widgets" class="grid-stack-item" gs-item-x="w.x" gs-item-y="w.y"
                          gs-item-width="w.width" gs-item-height="w.height" gs-item-autopos="1" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
                             <div class="grid-stack-item-content">
+                                <p class="dimensions">{{w.width.toFixed(4)}} x {{w.height.toFixed(4)}}</p>
+                                <p>Prod Ord #: {{w.prod}}</p>
+                                <p>Order #: {{w.order}}</p>
+                                <p>Order Date #: {{w.date}}</p>
+                                <p>Cust ID: {{w.custId}}</p>
+                                <p>Cust: {{w.cust}}</p>
                                 <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
                             </div>
                     </div>
@@ -64,7 +81,8 @@
         var app = angular.module('GridStack', ['gridstack-angular']).
           controller('DemoCtrl', function($scope, $log) {
 
-            $scope.widgets = [{ x:0, y:0, width:1, height:1 }, { x:0, y:1, width:1, height:1 }];
+            $scope.widgets = [{ id: 1, x:0, y:0, width:10, height:1, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789 },
+                            { id: 2, x:0, y:1, width:10, height:1, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789  }];
 
             $scope.options = {
                 width: 84,
@@ -73,7 +91,7 @@
             };
 
             $scope.addWidget = function() {
-                var newWidget = { x:0, y:0, width:1, height:1 };
+                var newWidget = { id: 3, x:0, y:0, width:10, height:1, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
                 //$('.grid-stack').locked(newWidget, true);
                 $scope.widgets.push(newWidget);
             };

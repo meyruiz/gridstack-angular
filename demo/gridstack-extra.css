@@ -13,7 +13,8 @@
   overflow-x: hidden;
   overflow-y: auto;
   border-style: solid;
-  border-color: coral;
+  border-width: 2px;
+  /*border-color: coral;*/
 }
 
 .grid-stack > .grid-stack-item[data-gs-width="1"] {

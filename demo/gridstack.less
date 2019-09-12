@@ -12,6 +12,23 @@
     min-width: 0 !important;
 }
 
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 0px;
+  right: 0px;
+  bottom: 0;
+  width: auto;
+  z-index: 0 !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-style: solid;
+  border-width: 2px;
+  /*border-color: coral;*/
+}
+
+/* Run above function */
 .grid-stack > .grid-stack-item {
   .gs-item(@columns);
 }
