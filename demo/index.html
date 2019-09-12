@@ -12,7 +12,8 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="bower_components/gridstack/dist/gridstack.css"/>
-    <link rel="stylesheet" href="bower_components/gridstack/dist/gridstack-extra.css"/>
+    <link rel="stylesheet" href="gridstack-extra.css"/>
+
 
     <style type="text/css">
         .grid1 {
@@ -61,22 +62,18 @@
         var app = angular.module('GridStack', ['gridstack-angular']).
           controller('DemoCtrl', function($scope, $log) {
 
-            $scope.widgets = [{ x:0, y:0, width:1, height:1 }, { x:0, y:0, width:3, height:1 }];
+            $scope.widgets = [{ x:0, y:0, width:1, height:1 }, { x:0, y:1, width:1, height:1 }];
 
             $scope.options = {
+                width: 84,
                 cellHeight: 200,
                 verticalMargin: 10
             };
 
             $scope.addWidget = function() {
                 var newWidget = { x:0, y:0, width:1, height:1 };
+                //$('.grid-stack').locked(newWidget, true);
                 $scope.widgets.push(newWidget);
-            };
-
-            $scope.moveWidget = function() {
-                $scope.widgets[0].x = 1;
-                $scope.widgets[0].width = 2;
-                $scope.widgets[0].height = 2;
             };
 
             $scope.removeWidget = function(w) {
@@ -106,6 +103,9 @@
 
             $scope.onItemAdded = function(item) {
                 $log.log("onItemAdded item: "+item);
+
+                // Figure out how to lock the created item
+                $(".grid-stack").each(function (idx, gsEl) { $(gsEl).data("gridstack").locked(".grid-stack-item", true);});
             };
 
             $scope.onItemRemoved = function(item) {
