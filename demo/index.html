@@ -40,13 +40,6 @@
 </head>
 <body ng-app="GridStack" ng-controller="DemoCtrl">
     <div class="container-fluid">
-        <h1>gridstack-angular demo</h1>
-        <p>{{widgets}}</p>
-        <div>
-            <a class="btn btn-primary" ng-click="addWidget()" href="#">Add Widget</a>
-            <a class="btn btn-primary" ng-click="moveWidget()" href="#">Move Widget</a>
-        </div>
-        <br>
         <div class="row">
             <div class="col-md-1">
                 <p>Scale</p>
@@ -99,12 +92,12 @@
 
             var gridWidth = 84;
 
-            $scope.widgets = [{ id: 1, x:0, y:0, width:15, height:1, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789 },
-                            { id: 2, x:0, y:1, width:20, height:1, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789  }];
+            $scope.widgets = [{ id: 1, x:0, y:0, width:15, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789 },
+                            { id: 2, x:0, y:1, width:20, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789  }];
 
             $scope.options = {
                 width: gridWidth,
-                cellHeight: 200,
+                cellHeight: 20,
                 verticalMargin: 0
             };
 
@@ -154,7 +147,7 @@
 
                 var offcutWidth = gridWidth - w.width;
 
-                var newWidget = { x:0, y:0, width: offcutWidth, height:1, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
+                var newWidget = { x:0, y:0, width: offcutWidth, height:w.height, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
                 $scope.widgets.push(newWidget);
             }
 
