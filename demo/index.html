@@ -48,7 +48,22 @@
         </div>
         <br>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-1">
+                <p>Scale</p>
+                <p>2' x 1.00"</p>
+                <hr />
+                <button type="button" class="btn btn-primary" ng-click="addWidget()">Add Cut</button>
+                <button type="button" class="btn" onclick="changeZoom(1)"> Zoom In </button>
+                <button type="button" class="btn" onclick="changeZoom(-1)"> Zoom Out </button>
+                <button type="button" class="btn"> Print </button>
+            </div>
+
+            <div class="col-md-11">
+                <div id="info-general">
+                    <p>SIZE: <span id="gridHeight">600</span>' X <span id="gridWidth">84</span>.0000" ITEM: FERROFLEX STEEL
+                        REINFORCED BELT LOT: D0118990-B CUST: ACME MINING OF MINNESOTA, INC</p>
+                    <p>REQUIRED: 2 CUTS - 80'6.0000" X 36.0000 ****1 OF 2 ADDED ****</p>
+                </div>
                 <div gridstack class="grid-stack grid1" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
                     <div gridstack-item ng-repeat="w in widgets" class="grid-stack-item" gs-item-x="w.x" gs-item-y="w.y"
                          gs-item-width="w.width" gs-item-height="w.height" gs-item-autopos="1" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
