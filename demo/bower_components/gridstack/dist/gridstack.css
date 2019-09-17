@@ -369,6 +369,14 @@
   transition: left 0s, top 0s, height 0s, width 0s;
 }
 
+.grid-stack .grid-stack-item .grid-stack-item-content,
+.grid-stack .grid-stack-item .placeholder-content {
+left: 2px;
+right: 2px;
+bottom: -4px;
+top: -6px;
+}
+
 @media (max-width: 768px) {
   .grid-stack-item {
     position: relative !important;
