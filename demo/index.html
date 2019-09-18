@@ -38,7 +38,7 @@
 
     </style>
 </head>
-<body ng-app="GridStack" ng-controller="DemoCtrl">
+<body ng-app="GridStack" ng-controller="DemoCtrl" ng-init="init()">
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-1">
@@ -57,20 +57,24 @@
                         REINFORCED BELT LOT: D0118990-B CUST: ACME MINING OF MINNESOTA, INC</p>
                     <p>REQUIRED: 2 CUTS - 80'6.0000" X 36.0000 ****1 OF 2 ADDED ****</p>
                 </div>
-                <div gridstack class="grid-stack grid1" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
-                    <div gridstack-item ng-repeat="w in widgets" class="grid-stack-item" gs-item-x="w.x" gs-item-y="w.y"
-                         gs-item-width="w.width" gs-item-height="w.height" gs-item-autopos="1" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
-                            <div class="grid-stack-item-content">
-                                <p class="dimensions">{{w.width.toFixed(4)}} x {{w.height.toFixed(4)}}</p>
-                                <p>Prod Ord #: {{w.prod}}</p>
-                                <p>Order #: {{w.order}}</p>
-                                <p>Order Date #: {{w.date}}</p>
-                                <p>Cust ID: {{w.custId}}</p>
-                                <p>Cust: {{w.cust}}</p>
-                                <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
-                            </div>
+                <div id="belt-grid">
+                    <div class='ruler-horizontal'></div>
+                    <div gridstack class="grid-stack grid1" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
+                        <div class='ruler-vertical'></div>
+                        <div gridstack-item ng-repeat="w in widgets" class="grid-stack-item" gs-item-x="w.x" gs-item-y="w.y"
+                            gs-item-width="w.width" gs-item-height="w.height" gs-item-autopos="1" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
+                                <div class="grid-stack-item-content">
+                                    <p class="dimensions">{{w.width.toFixed(4)}} x {{w.height.toFixed(4)}}</p>
+                                    <p>Prod Ord #: {{w.prod}}</p>
+                                    <p>Order #: {{w.order}}</p>
+                                    <p>Order Date #: {{w.date}}</p>
+                                    <p>Cust ID: {{w.custId}}</p>
+                                    <p>Cust: {{w.cust}}</p>
+                                    <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
+                                    <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
+                                    <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -144,11 +148,44 @@
             };
 
             $scope.offcutX = function (w) {
-
                 var offcutWidth = gridWidth - w.width;
 
                 var newWidget = { x:0, y:0, width: offcutWidth, height:w.height, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
                 $scope.widgets.push(newWidget);
+            }
+
+            $scope.createRulerDimensions = function () {
+
+                var numItemsHorizontal = gridWidth / 12;
+                var numItemsVertical = 600 / 20;
+                var scaleWidthToHeight = 1; // This will change depending on the backend values
+
+                var rulerHorizontal = document.querySelector(".ruler-horizontal");
+                var grid = document.querySelector(".grid-stack");
+
+                var widthHorizontalRuler = rulerHorizontal.clientWidth;
+                var rulerVertical = document.querySelector(".ruler-vertical");
+                var widthVerticalRuler = rulerVertical.clientHeight;
+
+                rulerVertical.style.height = `${widthVerticalRuler / scaleWidthToHeight}px`;
+
+                for (let i = 0; i <= numItemsHorizontal; i++) {
+                    let div = document.createElement('div');
+                    div.className = 'in';
+                    div.dataset.text = (i * 12) + '.0"';
+                    rulerHorizontal.appendChild(div);
+                }
+
+                for (let i = 0; i <= numItemsVertical; i++) {
+                    let div = document.createElement('div');
+                    div.className = 'in';
+                    div.dataset.text = (i * 20) + ".0'";
+                    rulerVertical.appendChild(div);
+                }
+            }
+            
+            $scope.init = function () {
+                $scope.createRulerDimensions();
             }
 
         });

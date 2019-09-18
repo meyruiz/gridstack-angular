@@ -2,6 +2,35 @@
   margin-top: 20px;
 }
 
+#belt-grid .ruler-horizontal {
+    position: relative;
+    display: flex;
+    top: -17px;
+    left: -8px;
+    width: calc(100% - 6px);
+    justify-content: space-between;
+}
+
+    #belt-grid .ruler-horizontal .in:after {
+        position: absolute;
+        bottom: -15px;
+        font: 12px sans-serif;
+        content: attr(data-text);
+    }
+
+#belt-grid .ruler-vertical {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    top: -5px;
+}
+
+    #belt-grid .ruler-vertical .in:after {
+        font: 11px/1 sans-serif;
+        content: attr(data-text);
+    }
+
 :root .grid-stack-item > .ui-resizable-handle {
   filter: none;
 }
