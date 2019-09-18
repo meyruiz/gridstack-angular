@@ -16,9 +16,12 @@
 
 
     <style type="text/css">
-        .grid1 {
+        #belt-grid {
+            margin-top: 30px;
+            height: 12001px !important;
             background-size: 1.19% 20px;
-            background-image: linear-gradient(to right, grey 1px, transparent 1px), linear-gradient(to bottom, grey 1px, transparent 1px);
+            background-image: linear-gradient(to right, grey 1px, transparent 1px),
+                linear-gradient(to bottom, grey 1px, transparent 1px);
         }
         .grid-stack-item-content {
             color: #2c3e50;
@@ -43,33 +46,31 @@
         <div class="row">
             <div class="col-md-1">
                 <p>Scale</p>
-                <p>2' x 1.00"</p>
+                <p>1' x 1.00"</p>
                 <hr />
                 <button type="button" class="btn btn-primary" ng-click="addWidget()">Add Cut</button>
                 <button type="button" class="btn" onclick="changeZoom(1)"> Zoom In </button>
                 <button type="button" class="btn" onclick="changeZoom(-1)"> Zoom Out </button>
                 <button type="button" class="btn"> Print </button>
             </div>
-
+    
             <div class="col-md-11">
                 <div id="info-general">
-                    <p>SIZE: <span id="gridHeight">600</span>' X <span id="gridWidth">84</span>.0000" ITEM: FERROFLEX STEEL
-                        REINFORCED BELT LOT: D0118990-B CUST: ACME MINING OF MINNESOTA, INC</p>
+                    <p>SIZE: {{BeltLength}}' X {{BeltWidth | number : 4}}" ITEM: {{ItemID}} BELT LOT: {{Lot}} CUST: {{CustomerName}}</p>
                     <p>REQUIRED: 2 CUTS - 80'6.0000" X 36.0000 ****1 OF 2 ADDED ****</p>
                 </div>
                 <div id="belt-grid">
                     <div class='ruler-horizontal'></div>
-                    <div gridstack class="grid-stack grid1" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
+                    <div gridstack class="grid-stack" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
                         <div class='ruler-vertical'></div>
-                        <div gridstack-item ng-repeat="w in widgets" class="grid-stack-item" gs-item-x="w.x" gs-item-y="w.y"
-                            gs-item-width="w.width" gs-item-height="w.height" gs-item-autopos="1" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
+                        <div gridstack-item ng-repeat="w in widgets" class="grid-stack-item" gs-item-x="w.X" gs-item-y="w.Y"
+                            gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="1" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
                                 <div class="grid-stack-item-content">
-                                    <p class="dimensions">{{w.width.toFixed(4)}} x {{w.height.toFixed(4)}}</p>
-                                    <p>Prod Ord #: {{w.prod}}</p>
-                                    <p>Order #: {{w.order}}</p>
-                                    <p>Order Date #: {{w.date}}</p>
-                                    <p>Cust ID: {{w.custId}}</p>
-                                    <p>Cust: {{w.cust}}</p>
+                                    <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                    <div ng-repeat="info in w.DisplayInfo">
+                                        <p>{{info.Label}}: {{info.Value}}</p>
+                                    </div>
+                                    
                                     <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
                                     <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
                                     <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
@@ -79,6 +80,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -95,9 +97,282 @@
           controller('DemoCtrl', function($scope, $log) {
 
             var gridWidth = 84;
+            var jsonData = {
+                "ItemID": "TVVBELT",
+                "ItemDesc": "TVV Belt Item",
+                "Lot": "TVVLOT3-4-5",
+                "BeltLength": "110.0000",
+                "BeltWidth": "110.0000",
+                "LotCost": "0.455789358",
+                "RemnantLength": "5.000000000",
+                "RemnantWidth": "5.000000000",
+                "CustomerID": "0",
+                "CustomerName": "",
+                "CurrentTransType": "4",
+                "CutLength": "0",
+                "CutWidth": "0",
+                "ExistingCuts": [
+                    {
+                        "Id": "178",
+                        "X": "0",
+                        "Y": "10",
+                        "Length": "100",
+                        "Width": "10",
+                        "Offcut": "",
+                        "ParentId": "",
+                        "Status": "3",
+                        "RowStatus": "0",
+                        "DisplayInfo": [
+                            {
+                                "Label": "Type",
+                                "Value": "Inv Adjust"
+                            },
+                            {
+                                "Label": "Adj #",
+                                "Value": "104207"
+                            },
+                            {
+                                "Label": "Adj Date",
+                                "Value": "8/28/2017"
+                            },
+                            {
+                                "Label": "Reason",
+                                "Value": "NEW"
+                            },
+                            {
+                                "Label": "Desc/New Lot",
+                                "Value": "TVVLOT3-4-5"
+                            }
+                        ]
+                    },
+                    {
+                        "Id": "180",
+                        "X": "10",
+                        "Y": "10",
+                        "Length": "100",
+                        "Width": "10",
+                        "Offcut": "",
+                        "ParentId": "",
+                        "Status": "3",
+                        "RowStatus": "0",
+                        "DisplayInfo": [
+                            {
+                                "Label": "Type",
+                                "Value": "Inv Adjust"
+                            },
+                            {
+                                "Label": "Adj #",
+                                "Value": "104209"
+                            },
+                            {
+                                "Label": "Adj Date",
+                                "Value": "8/28/2017"
+                            },
+                            {
+                                "Label": "Reason",
+                                "Value": "NEW"
+                            },
+                            {
+                                "Label": "Desc/New Lot",
+                                "Value": "TVVLOT3-4-5"
+                            }
+                        ]
+                    },
+                    {
+                        "Id": "177",
+                        "X": "0",
+                        "Y": "0",
+                        "Length": "10",
+                        "Width": "10",
+                        "Offcut": "",
+                        "ParentId": "",
+                        "Status": "1",
+                        "RowStatus": "0",
+                        "DisplayInfo": [
+                            {
+                                "Label": "Type",
+                                "Value": "Prod Order"
+                            },
+                            {
+                                "Label": "Prod Ord #",
+                                "Value": "10001390"
+                            },
+                            {
+                                "Label": "Order #",
+                                "Value": "1927822"
+                            },
+                            {
+                                "Label": "Order Date",
+                                "Value": "8/28/2017"
+                            },
+                            {
+                                "Label": "Cust ID",
+                                "Value": "1006739"
+                            },
+                            {
+                                "Label": "Cust",
+                                "Value": "TVV Customer"
+                            }
+                        ]
+                    },
+                    {
+                        "Id": "179",
+                        "X": "10",
+                        "Y": "0",
+                        "Length": "10",
+                        "Width": "10",
+                        "Offcut": "",
+                        "ParentId": "",
+                        "Status": "1",
+                        "RowStatus": "0",
+                        "DisplayInfo": [
+                            {
+                                "Label": "Type",
+                                "Value": "Prod Order"
+                            },
+                            {
+                                "Label": "Prod Ord #",
+                                "Value": "10001391"
+                            },
+                            {
+                                "Label": "Order #",
+                                "Value": "1927823"
+                            },
+                            {
+                                "Label": "Order Date",
+                                "Value": "8/28/2017"
+                            },
+                            {
+                                "Label": "Cust ID",
+                                "Value": "1006739"
+                            },
+                            {
+                                "Label": "Cust",
+                                "Value": "TVV Customer"
+                            }
+                        ]
+                    },
+                    {
+                        "Id": "186",
+                        "X": "20",
+                        "Y": "20",
+                        "Length": "15",
+                        "Width": "20",
+                        "Offcut": "",
+                        "ParentId": "",
+                        "Status": "2",
+                        "RowStatus": "0",
+                        "DisplayInfo": [
+                            {
+                                "Label": "Type",
+                                "Value": "Prod Order"
+                            },
+                            {
+                                "Label": "Prod Ord #",
+                                "Value": "10001397"
+                            },
+                            {
+                                "Label": "Order #",
+                                "Value": "1928979"
+                            },
+                            {
+                                "Label": "Order Date",
+                                "Value": "6/29/2018"
+                            },
+                            {
+                                "Label": "Cust ID",
+                                "Value": "1006739"
+                            },
+                            {
+                                "Label": "Cust",
+                                "Value": "TVV Customer"
+                            }
+                        ]
+                    },
+                    {
+                        "Id": "187",
+                        "X": "20",
+                        "Y": "35",
+                        "Length": "75",
+                        "Width": "20",
+                        "Offcut": "Y",
+                        "ParentId": "186",
+                        "Status": "6",
+                        "RowStatus": "0",
+                        "DisplayInfo": [
+                            {
+                                "Label": "Type",
+                                "Value": "Prod Order"
+                            },
+                            {
+                                "Label": "Prod Ord #",
+                                "Value": "10001397"
+                            },
+                            {
+                                "Label": "Order #",
+                                "Value": "1928979"
+                            },
+                            {
+                                "Label": "Order Date",
+                                "Value": "6/29/2018"
+                            },
+                            {
+                                "Label": "Cust ID",
+                                "Value": "1006739"
+                            },
+                            {
+                                "Label": "Cust",
+                                "Value": "TVV Customer"
+                            }
+                        ]
+                    },
+                    {
+                        "Id": "185",
+                        "X": "20",
+                        "Y": "0",
+                        "Length": "20",
+                        "Width": "10",
+                        "Offcut": "",
+                        "ParentId": "",
+                        "Status": "2",
+                        "RowStatus": "0",
+                        "DisplayInfo": [
+                            {
+                                "Label": "Type",
+                                "Value": "Prod Order"
+                            },
+                            {
+                                "Label": "Prod Ord #",
+                                "Value": "10001396"
+                            },
+                            {
+                                "Label": "Order #",
+                                "Value": "1928931"
+                            },
+                            {
+                                "Label": "Order Date",
+                                "Value": "6/12/2018"
+                            },
+                            {
+                                "Label": "Cust ID",
+                                "Value": "1006739"
+                            },
+                            {
+                                "Label": "Cust",
+                                "Value": "TVV Customer"
+                            }
+                        ]
+                    }
+                ],
+                "CurrentCuts": []
+            };
 
-            $scope.widgets = [{ id: 1, x:0, y:0, width:15, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789 },
-                            { id: 2, x:0, y:1, width:20, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789  }];
+            $scope.widgets = jsonData.ExistingCuts;
+
+            console.log($scope.widgets);
+            
+            //[{ id: 1, x:0, y:0, width:15, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789 },
+                            //{ id: 2, x:0, y:1, width:20, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789  }];
 
             $scope.options = {
                 width: gridWidth,
@@ -106,7 +381,7 @@
             };
 
             $scope.addWidget = function() {
-                var newWidget = { x:0, y:0, width:10, height:1, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
+                var newWidget = { x:0, y:0, width:10, height:10, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
                 //$('.grid-stack').locked(newWidget, true);
                 $scope.widgets.push(newWidget);
             };
@@ -183,11 +458,32 @@
                     rulerVertical.appendChild(div);
                 }
             }
+
+            $scope.deserializeData = function () {
+
+                // Belting grid data
+                $scope.ItemID = jsonData.ItemID;
+                $scope.ItemDesc = jsonData.ItemDesc;
+                $scope.Lot = jsonData.Lot;
+                $scope.BeltLength = jsonData.BeltLength;
+                $scope.BeltWidth = jsonData.BeltWidth;
+                $scope.LotCost = jsonData.LotCost;
+                $scope.CustomerName = jsonData.CustomerName;
+
+                // Items data
+                $scope.ExistingCuts = jsonData.ExistingCuts;
+
+                console.log($scope.ExistingCuts);
+            }
             
-            $scope.init = function () {
+            var init = function () {
+                $scope.deserializeData();
                 $scope.createRulerDimensions();
             }
 
+            init();
+
+            
         });
     </script>
 

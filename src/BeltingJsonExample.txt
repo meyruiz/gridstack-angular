@@ -1,0 +1,269 @@
+{
+	"ItemID": "TVVBELT",
+	"ItemDesc": "TVV Belt Item",
+	"Lot": "TVVLOT3-4-5",
+	"BeltLength": "110.0000",
+	"BeltWidth": "110.0000",
+	"LotCost": "0.455789358",
+	"RemnantLength": "5.000000000",
+	"RemnantWidth": "5.000000000",
+	"CustomerID": "0",
+	"CustomerName": "",
+	"CurrentTransType": "4",
+	"CutLength": "0",
+	"CutWidth": "0",
+	"ExistingCuts": [
+		{
+			"Id": "178",
+			"X": "0",
+			"Y": "10",
+			"Length": "100",
+			"Width": "10",
+			"Offcut": "",
+			"ParentId": "",
+			"Status": "3",
+			"RowStatus": "0",
+			"DisplayInfo": [
+				{
+					"Label": "Type",
+					"Value": "Inv Adjust"
+				},
+				{
+					"Label": "Adj #",
+					"Value": "104207"
+				},
+				{
+					"Label": "Adj Date",
+					"Value": "8/28/2017"
+				},
+				{
+					"Label": "Reason",
+					"Value": "NEW"
+				},
+				{
+					"Label": "Desc/New Lot",
+					"Value": "TVVLOT3-4-5"
+				}
+			]
+		},
+		{
+			"Id": "180",
+			"X": "10",
+			"Y": "10",
+			"Length": "100",
+			"Width": "10",
+			"Offcut": "",
+			"ParentId": "",
+			"Status": "3",
+			"RowStatus": "0",
+			"DisplayInfo": [
+				{
+					"Label": "Type",
+					"Value": "Inv Adjust"
+				},
+				{
+					"Label": "Adj #",
+					"Value": "104209"
+				},
+				{
+					"Label": "Adj Date",
+					"Value": "8/28/2017"
+				},
+				{
+					"Label": "Reason",
+					"Value": "NEW"
+				},
+				{
+					"Label": "Desc/New Lot",
+					"Value": "TVVLOT3-4-5"
+				}
+			]
+		},
+		{
+			"Id": "177",
+			"X": "0",
+			"Y": "0",
+			"Length": "10",
+			"Width": "10",
+			"Offcut": "",
+			"ParentId": "",
+			"Status": "1",
+			"RowStatus": "0",
+			"DisplayInfo": [
+				{
+					"Label": "Type",
+					"Value": "Prod Order"
+				},
+				{
+					"Label": "Prod Ord #",
+					"Value": "10001390"
+				},
+				{
+					"Label": "Order #",
+					"Value": "1927822"
+				},
+				{
+					"Label": "Order Date",
+					"Value": "8/28/2017"
+				},
+				{
+					"Label": "Cust ID",
+					"Value": "1006739"
+				},
+				{
+					"Label": "Cust",
+					"Value": "TVV Customer"
+				}
+			]
+		},
+		{
+			"Id": "179",
+			"X": "10",
+			"Y": "0",
+			"Length": "10",
+			"Width": "10",
+			"Offcut": "",
+			"ParentId": "",
+			"Status": "1",
+			"RowStatus": "0",
+			"DisplayInfo": [
+				{
+					"Label": "Type",
+					"Value": "Prod Order"
+				},
+				{
+					"Label": "Prod Ord #",
+					"Value": "10001391"
+				},
+				{
+					"Label": "Order #",
+					"Value": "1927823"
+				},
+				{
+					"Label": "Order Date",
+					"Value": "8/28/2017"
+				},
+				{
+					"Label": "Cust ID",
+					"Value": "1006739"
+				},
+				{
+					"Label": "Cust",
+					"Value": "TVV Customer"
+				}
+			]
+		},
+		{
+			"Id": "186",
+			"X": "20",
+			"Y": "20",
+			"Length": "15",
+			"Width": "20",
+			"Offcut": "",
+			"ParentId": "",
+			"Status": "2",
+			"RowStatus": "0",
+			"DisplayInfo": [
+				{
+					"Label": "Type",
+					"Value": "Prod Order"
+				},
+				{
+					"Label": "Prod Ord #",
+					"Value": "10001397"
+				},
+				{
+					"Label": "Order #",
+					"Value": "1928979"
+				},
+				{
+					"Label": "Order Date",
+					"Value": "6/29/2018"
+				},
+				{
+					"Label": "Cust ID",
+					"Value": "1006739"
+				},
+				{
+					"Label": "Cust",
+					"Value": "TVV Customer"
+				}
+			]
+		},
+		{
+			"Id": "187",
+			"X": "20",
+			"Y": "35",
+			"Length": "75",
+			"Width": "20",
+			"Offcut": "Y",
+			"ParentId": "186",
+			"Status": "6",
+			"RowStatus": "0",
+			"DisplayInfo": [
+				{
+					"Label": "Type",
+					"Value": "Prod Order"
+				},
+				{
+					"Label": "Prod Ord #",
+					"Value": "10001397"
+				},
+				{
+					"Label": "Order #",
+					"Value": "1928979"
+				},
+				{
+					"Label": "Order Date",
+					"Value": "6/29/2018"
+				},
+				{
+					"Label": "Cust ID",
+					"Value": "1006739"
+				},
+				{
+					"Label": "Cust",
+					"Value": "TVV Customer"
+				}
+			]
+		},
+		{
+			"Id": "185",
+			"X": "20",
+			"Y": "0",
+			"Length": "20",
+			"Width": "10",
+			"Offcut": "",
+			"ParentId": "",
+			"Status": "2",
+			"RowStatus": "0",
+			"DisplayInfo": [
+				{
+					"Label": "Type",
+					"Value": "Prod Order"
+				},
+				{
+					"Label": "Prod Ord #",
+					"Value": "10001396"
+				},
+				{
+					"Label": "Order #",
+					"Value": "1928931"
+				},
+				{
+					"Label": "Order Date",
+					"Value": "6/12/2018"
+				},
+				{
+					"Label": "Cust ID",
+					"Value": "1006739"
+				},
+				{
+					"Label": "Cust",
+					"Value": "TVV Customer"
+				}
+			]
+		}
+	],
+	"CurrentCuts": []
+}
