@@ -18,8 +18,6 @@
     <style type="text/css">
         #belt-grid {
             margin-top: 30px;
-            height: 12001px !important;
-            background-size: 1.19% 20px;
             background-image: linear-gradient(to right, grey 1px, transparent 1px),
                 linear-gradient(to bottom, grey 1px, transparent 1px);
         }
@@ -63,24 +61,97 @@
                     <div class='ruler-horizontal'></div>
                     <div gridstack class="grid-stack" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
                         <div class='ruler-vertical'></div>
-                        <div gridstack-item ng-repeat="w in widgets" class="grid-stack-item" gs-item-x="w.X" gs-item-y="w.Y"
+                        <div gridstack-item ng-repeat="w in widgets" ng-switch="w.Status" class="grid-stack-item" gs-item-x="w.X" gs-item-y="w.Y"
                             gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="1" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
-                                <div class="grid-stack-item-content">
-                                    <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
-                                    <div ng-repeat="info in w.DisplayInfo">
-                                        <p>{{info.Label}}: {{info.Value}}</p>
+                                <div ng-switch-when="0">
+                                    <div class="grid-stack-item-content current">
+                                        <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                        <div ng-repeat="info in w.DisplayInfo">
+                                            <p>{{info.Label}}: {{info.Value}}</p>
+                                        </div>
+                                        
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
                                     </div>
-                                    
-                                    <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                    <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                    <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                </div>
+                                <div ng-switch-when="1">
+                                    <div class="grid-stack-item-content cut">
+                                        <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                        <div ng-repeat="info in w.DisplayInfo">
+                                            <p>{{info.Label}}: {{info.Value}}</p>
+                                        </div>
+                                        
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="2">
+                                    <div class="grid-stack-item-content not-cut">
+                                        <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                        <div ng-repeat="info in w.DisplayInfo">
+                                            <p>{{info.Label}}: {{info.Value}}</p>
+                                        </div>
+                                        
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="3">
+                                    <div class="grid-stack-item-content another-lot">
+                                        <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                        <div ng-repeat="info in w.DisplayInfo">
+                                            <p>{{info.Label}}: {{info.Value}}</p>
+                                        </div>
+                                        
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="4">
+                                    <div class="grid-stack-item-content deleted">
+                                        <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                        <div ng-repeat="info in w.DisplayInfo">
+                                            <p>{{info.Label}}: {{info.Value}}</p>
+                                        </div>
+                                        
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                    </div>
+                                </div>
+                                <div ng-switch-when="5">
+                                    <div class="grid-stack-item-content offcut">
+                                        <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                        <div ng-repeat="info in w.DisplayInfo">
+                                            <p>{{info.Label}}: {{info.Value}}</p>
+                                        </div>
+                                        
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                    </div>
+                                </div>
+                                <div ng-switch-default>
+                                    <div class="grid-stack-item-content other">
+                                        <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                        <div ng-repeat="info in w.DisplayInfo">
+                                            <p>{{info.Label}}: {{info.Value}}</p>
+                                        </div>
+                                        
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                    </div>
                                 </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -96,13 +167,12 @@
         var app = angular.module('GridStack', ['gridstack-angular']).
           controller('DemoCtrl', function($scope, $log) {
 
-            var gridWidth = 84;
             var jsonData = {
                 "ItemID": "TVVBELT",
                 "ItemDesc": "TVV Belt Item",
                 "Lot": "TVVLOT3-4-5",
-                "BeltLength": "110.0000",
-                "BeltWidth": "110.0000",
+                "BeltLength": "120.0000",
+                "BeltWidth": "84.0000",
                 "LotCost": "0.455789358",
                 "RemnantLength": "5.000000000",
                 "RemnantWidth": "5.000000000",
@@ -367,6 +437,8 @@
                 "CurrentCuts": []
             };
 
+            $scope.BeltLength = jsonData.BeltLength;
+            $scope.BeltWidth = jsonData.BeltWidth;
             $scope.widgets = jsonData.ExistingCuts;
 
             console.log($scope.widgets);
@@ -375,7 +447,7 @@
                             //{ id: 2, x:0, y:1, width:20, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789  }];
 
             $scope.options = {
-                width: gridWidth,
+                width: $scope.BeltWidth,
                 cellHeight: 20,
                 verticalMargin: 0
             };
@@ -423,40 +495,10 @@
             };
 
             $scope.offcutX = function (w) {
-                var offcutWidth = gridWidth - w.width;
+                var offcutWidth = $scope.BeltWidth - w.width;
 
                 var newWidget = { x:0, y:0, width: offcutWidth, height:w.height, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
                 $scope.widgets.push(newWidget);
-            }
-
-            $scope.createRulerDimensions = function () {
-
-                var numItemsHorizontal = gridWidth / 12;
-                var numItemsVertical = 600 / 20;
-                var scaleWidthToHeight = 1; // This will change depending on the backend values
-
-                var rulerHorizontal = document.querySelector(".ruler-horizontal");
-                var grid = document.querySelector(".grid-stack");
-
-                var widthHorizontalRuler = rulerHorizontal.clientWidth;
-                var rulerVertical = document.querySelector(".ruler-vertical");
-                var widthVerticalRuler = rulerVertical.clientHeight;
-
-                rulerVertical.style.height = `${widthVerticalRuler / scaleWidthToHeight}px`;
-
-                for (let i = 0; i <= numItemsHorizontal; i++) {
-                    let div = document.createElement('div');
-                    div.className = 'in';
-                    div.dataset.text = (i * 12) + '.0"';
-                    rulerHorizontal.appendChild(div);
-                }
-
-                for (let i = 0; i <= numItemsVertical; i++) {
-                    let div = document.createElement('div');
-                    div.className = 'in';
-                    div.dataset.text = (i * 20) + ".0'";
-                    rulerVertical.appendChild(div);
-                }
             }
 
             $scope.deserializeData = function () {
@@ -465,20 +507,49 @@
                 $scope.ItemID = jsonData.ItemID;
                 $scope.ItemDesc = jsonData.ItemDesc;
                 $scope.Lot = jsonData.Lot;
-                $scope.BeltLength = jsonData.BeltLength;
-                $scope.BeltWidth = jsonData.BeltWidth;
                 $scope.LotCost = jsonData.LotCost;
                 $scope.CustomerName = jsonData.CustomerName;
 
                 // Items data
                 $scope.ExistingCuts = jsonData.ExistingCuts;
+            }
 
-                console.log($scope.ExistingCuts);
+            $scope.createRulerDimensions = function () {
+
+                var numItemsHorizontal = $scope.BeltWidth / 12;
+                var numItemsVertical = $scope.BeltLength / 20;
+                var scaleWidthToHeight = 1; // This will change depending on the backend values
+
+                var rulerHorizontal = document.querySelector(".ruler-horizontal");
+                var rulerVertical = document.querySelector(".ruler-vertical");
+
+                rulerVertical.style.height = ($scope.BeltLength * 20) + 'px';
+
+                for (var i = 0; i <= numItemsHorizontal; i++) {
+                    let div = document.createElement('div');
+                    div.className = 'in';
+                    div.dataset.text = (i * 12) + '.0"';
+                    rulerHorizontal.appendChild(div);
+                }
+
+                for (var i = 0; i <= numItemsVertical; i++) {
+                    let div = document.createElement('div');
+                    div.className = 'in';
+                    div.dataset.text = (i * 20) + ".0'";
+                    rulerVertical.appendChild(div);
+                }
+            }
+
+            $scope.createGridStyles = function () {
+                var grid = document.querySelector("#belt-grid");
+                grid.style.height = ($scope.BeltLength * 20) + 'px';
+                grid.style.backgroundSize = (100 / $scope.BeltWidth) + '% ' + "20px";
             }
             
             var init = function () {
                 $scope.deserializeData();
                 $scope.createRulerDimensions();
+                $scope.createGridStyles();
             }
 
             init();

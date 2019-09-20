@@ -1,7 +1,55 @@
-.grid-stack > .grid-stack-item {
+#belt-grid .grid-stack-item-content {
+  color: #2c3e50;
+  text-align: center;
+  background: #FFFFFF;
+  font-size: 1.2rem;
+}
+
+#belt-grid .grid-stack-item-content .btn {
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+#belt-grid .grid-stack-item-content.new {
+  background: #FFFF99;
+}
+#belt-grid .grid-stack-item-content.current {
+  background: #FFFF99;
+}
+#belt-grid .grid-stack-item-content.not-cut {
+  background: #99CCFF;
+}
+#belt-grid .grid-stack-item-content.cut {
+  background: #CCCCCC;
+}
+#belt-grid .grid-stack-item-content.deleted {
+  background: #999999;
+}
+#belt-grid .grid-stack-item-content.another-lot {
+  background: #FF83FA;
+}
+#belt-grid .grid-stack-item-content.offcut {
+  background: #FF69B4;
+}
+#belt-grid .grid-stack-item-content.other {
+  background: #FFFFFF;
+}
+
+#belt-grid .grid-stack-item-content p {
+  font-weight: bold;
+  line-height: 1.1em;
+  margin: 5px;
+}
+
+#belt-grid .grid-stack-item-content p.dimensions {
+  margin: 15px 0;
+}
+
+#belt-grid .grid-stack > .grid-stack-item {
   min-width: 0 !important;
 }
-.grid-stack > .grid-stack-item > .grid-stack-item-content {
+
+#belt-grid .grid-stack > .grid-stack-item > div > .grid-stack-item-content {
   margin: 0;
   position: absolute;
   top: 0;
@@ -16,6 +64,36 @@
   border-width: 2px;
   /*border-color: coral;*/
 }
+
+#belt-grid .ruler-horizontal {
+  position: relative;
+  display: flex;
+  top: -17px;
+  left: -8px;
+  width: calc(100% - 6px);
+  justify-content: space-between;
+}
+
+  #belt-grid .ruler-horizontal .in:after {
+      position: absolute;
+      bottom: -15px;
+      font: 12px sans-serif;
+      content: attr(data-text);
+  }
+
+#belt-grid .ruler-vertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  top: -10px;
+  left: -35px;
+}
+
+  #belt-grid .ruler-vertical .in:after {
+      font: 11px/1 sans-serif;
+      content: attr(data-text);
+  }
 
 .grid-stack > .grid-stack-item[data-gs-width="1"] {
   width: 1.19047619%;
