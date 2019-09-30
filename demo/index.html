@@ -46,9 +46,9 @@
                 <p>Scale</p>
                 <p>1' x 1.00"</p>
                 <hr />
-                <button type="button" class="btn btn-primary" ng-click="addWidget()">Add Cut</button>
-                <button type="button" class="btn" onclick="changeZoom(1)"> Zoom In </button>
-                <button type="button" class="btn" onclick="changeZoom(-1)"> Zoom Out </button>
+                <button type="button" class="btn btn-primary" ng-click="addNewCut()">Add Cut</button>
+                <button type="button" class="btn" ng-click="changeZoom(1)"> Zoom In </button>
+                <button type="button" class="btn" ng-click="changeZoom(-1)"> Zoom Out </button>
                 <button type="button" class="btn"> Print </button>
             </div>
     
@@ -62,7 +62,7 @@
                     <div gridstack class="grid-stack" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
                         <div class='ruler-vertical'></div>
                         <div gridstack-item ng-repeat="w in widgets" ng-switch="w.Status" class="grid-stack-item" gs-item-x="w.X" gs-item-y="w.Y"
-                            gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="1" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
+                            gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="0" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
                                 <div ng-switch-when="0">
                                     <div class="grid-stack-item-content current">
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
@@ -70,9 +70,9 @@
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
                                         
-                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
                                     </div>
                                 </div>
                                 <div ng-switch-when="1">
@@ -82,9 +82,9 @@
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
                                         
-                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
                                     </div>
                                 </div>
                                 <div ng-switch-when="2">
@@ -94,9 +94,9 @@
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
                                         
-                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
                                     </div>
                                 </div>
                                 <div ng-switch-when="3">
@@ -106,9 +106,9 @@
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
                                         
-                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
                                     </div>
                                 </div>
                                 <div ng-switch-when="4">
@@ -118,9 +118,9 @@
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
                                         
-                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
                                     </div>
                                 </div>
                                 <div ng-switch-when="5">
@@ -130,9 +130,9 @@
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
                                         
-                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
                                     </div>
                                 </div>
                                 <div ng-switch-default>
@@ -142,9 +142,9 @@
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
                                         
-                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" href="#">offcut x</a>
-                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" href="#">offcut y</a>
-                                        <a class="btn btn-primary" ng-click="removeWidget(w)" href="#">remove</a>
+                                        <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
+                                        <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
+                                        <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
                                     </div>
                                 </div>
                         </div>
@@ -440,8 +440,7 @@
             $scope.BeltLength = jsonData.BeltLength;
             $scope.BeltWidth = jsonData.BeltWidth;
             $scope.widgets = jsonData.ExistingCuts;
-
-            console.log($scope.widgets);
+            $scope.zoom = 10;
             
             //[{ id: 1, x:0, y:0, width:15, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789 },
                             //{ id: 2, x:0, y:1, width:20, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789  }];
@@ -452,10 +451,14 @@
                 verticalMargin: 0
             };
 
-            $scope.addWidget = function() {
-                var newWidget = { x:0, y:0, width:10, height:10, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
+            $scope.addWidget = function(width, length) {
+                // TODO: ADD ID
+                console.log(length);
+                var newWidget = { X: 36, Y: 0, Width: width, Length: length, Offcut: '', ParentId: '', Status: 6, RowStatus: '', DisplayInfo: ''};
                 //$('.grid-stack').locked(newWidget, true);
                 $scope.widgets.push(newWidget);
+
+                //add to currentCuts
             };
 
             $scope.removeWidget = function(w) {
@@ -465,6 +468,8 @@
 
             $scope.onChange = function(event, items) {
                 $log.log("onChange event: "+event+" items:"+items);
+
+                //add to currentCuts
             };
 
             $scope.onDragStart = function(event, ui) {
@@ -481,13 +486,17 @@
 
             $scope.onResizeStop = function(event, ui) {
                 $log.log("onResizeStop event: "+event+" ui:"+ui);
+
+                //add to currentCuts
             };
 
             $scope.onItemAdded = function(item) {
                 $log.log("onItemAdded item: "+item);
 
                 // Figure out how to lock the created item
-                $(".grid-stack").each(function (idx, gsEl) { $(gsEl).data("gridstack").locked(".grid-stack-item", true);});
+                $(".grid-stack").each(function (idx, gsEl) { 
+                    $(gsEl).data("gridstack").locked(".grid-stack-item", true);
+                });
             };
 
             $scope.onItemRemoved = function(item) {
@@ -495,9 +504,20 @@
             };
 
             $scope.offcutX = function (w) {
-                var offcutWidth = $scope.BeltWidth - w.width;
+                var posX = w.X + w.Width;
+                var offcutWidth = $scope.BeltWidth - w.Width;
 
-                var newWidget = { x:0, y:0, width: offcutWidth, height:w.height, status: 'Allocated', cust: 'Acme Mining Co', date: '03/31/2019', order: 123456789, prod: 123456789  };
+                // TODO: ADD ID
+                var newWidget = { X: posX, Y: w.Y, Width: offcutWidth, Length:w.Length, Offcut: 'Y', ParentId: w.Id, Status: 5, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo};
+                $scope.widgets.push(newWidget);
+            }
+
+            $scope.offcutY = function (w) {
+                var posY = w.Y + w.Length;
+                var offcutLength = $scope.BeltLength - w.Length;
+
+                // TODO: ADD ID
+                var newWidget = { X: w.X, Y:posY, Width: w.Width, Length: offcutLength, Offcut: 'Y', ParentId: w.Id, Status: 5, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo};
                 $scope.widgets.push(newWidget);
             }
 
@@ -545,6 +565,78 @@
                 grid.style.height = ($scope.BeltLength * 20) + 'px';
                 grid.style.backgroundSize = (100 / $scope.BeltWidth) + '% ' + "20px";
             }
+
+            $scope.setZoom = function(zoom, el) {
+                var transformOrigin = [0, 0];
+                el = el || instance.getContainer();
+                var p = ["webkit", "moz", "ms", "o"],
+                    s = "scale(" + zoom + ")",
+                    oString = (transformOrigin[0] * 100) + "% " + (transformOrigin[1] * 100) + "%";
+            
+                for (var i = 0; i < p.length; i++) {
+                    el.style[p[i] + "Transform"] = s;
+                    el.style[p[i] + "TransformOrigin"] = oString;
+                }
+            
+                el.style["transform"] = s;
+                el.style["transformOrigin"] = oString;
+            }
+
+            $scope.changeZoom = function(a) {
+                var tooltips = document.querySelectorAll('.tooltiptext');
+                var fontSize = 4.5;
+                var width = 200;
+                var height = 140;
+            
+                if (($scope.zoom != 7 && a != 1) || ($scope.zoom != 14 && a != -1)) {
+                    $scope.zoom += a;
+                    var zoomScale = Number($scope.zoom) / 10;
+                    $scope.setZoom(zoomScale, document.getElementById('belt-grid'));
+                    
+                    // TODO: Update rulers length instead of zooming everything ( text gets too small)
+                    // rulerHorizontal.style.width = `${widthHorizontalRuler * zoomScale}px`;
+                    // rulerVertical.style.height = `${widthVerticalRuler * zoomScale}px`;
+            
+                    // TODO: Add tooltips functions when cuts get too small
+                    // if (zoom < 10) {
+                    //     tooltips.forEach(tooltip => {
+                    //         tooltip.style.fontSize = `${fontSize / zoomScale}em`;
+                    //         tooltip.style.width = `${width / zoomScale}px`;
+                    //         tooltip.style.height = `${height / zoomScale}px`;
+                    //     });
+                    // }
+                }
+                //gridData["DemoGrid"].hideInfoCutIfOverflow();
+            }
+
+            // $scope.addNewCut = function () {
+            //     epModalDialogService.showCustomDialog({
+            //         templateOptions: {
+            //             templateUrl: 'app/views/viewgrid/newcut.html'
+            //         },
+            //         title: 'Enter Cut Size',
+            //         status: 'information',
+            //         backdrop: true,
+            //         buttons: [{
+            //             text: 'Save',
+            //             type: 'primary',
+            //             action:function(){
+            //                 var width = parseInt(document.querySelector(".width").value);
+            //                 var length = parseInt(document.querySelector(".lenFT").value);
+            //                 $scope.addWidget(width, length);
+            //             }
+            //         },{
+            //             text: 'Close',
+            //             action: function () {
+            //                 $window.close();
+            //             }
+            //         }, {
+            //             text: 'Cancel',
+            //             isCancel: true
+            //         }],
+            //         closeButton: true
+            //     });
+            // }
             
             var init = function () {
                 $scope.deserializeData();
@@ -553,8 +645,6 @@
             }
 
             init();
-
-            
         });
     </script>
 
