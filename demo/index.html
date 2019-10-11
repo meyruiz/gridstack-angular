@@ -49,27 +49,25 @@
                 <button type="button" class="btn btn-primary" ng-click="addNewCut()">Add Cut</button>
                 <button type="button" class="btn" ng-click="changeZoom(1)"> Zoom In </button>
                 <button type="button" class="btn" ng-click="changeZoom(-1)"> Zoom Out </button>
-                <button type="button" class="btn"> Print </button>
             </div>
     
             <div class="col-md-11">
                 <div id="info-general">
-                    <p>SIZE: {{BeltLength}}' X {{BeltWidth | number : 4}}" ITEM: {{ItemID}} BELT LOT: {{Lot}} CUST: {{CustomerName}}</p>
+                    <p>SIZE: {{beltLength}}' X {{beltWidth | number : 4}}" ITEM: {{itemID}} BELT LOT: {{lot}} CUST: {{customerName}}</p>
                     <p>REQUIRED: 2 CUTS - 80'6.0000" X 36.0000 ****1 OF 2 ADDED ****</p>
                 </div>
                 <div id="belt-grid">
                     <div class='ruler-horizontal'></div>
-                    <div gridstack class="grid-stack" options="options" on-change="onChange(event,items)" on-drag-start="onDragStart(event,ui)" on-drag-stop="onDragStop(event,ui)" on-resize-start="onResizeStart(event,ui)" on-resize-stop="onResizeStop(event,ui)">
+                    <div gridstack class="grid-stack" options="options" on-resize-stop="onResizeStop(event,ui)">
                         <div class='ruler-vertical'></div>
-                        <div gridstack-item ng-repeat="w in widgets" ng-switch="w.Status" class="grid-stack-item" gs-item-x="w.X" gs-item-y="w.Y"
-                            gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="0" on-item-added="onItemAdded(item)" on-item-removed="onItemRemoved(item)">
+                        <div gridstack-item ng-repeat="w in widgets" ng-switch="w.Status" class="grid-stack-item" data-id={{w.Id}} gs-item-x="w.X" gs-item-y="w.Y"
+                            gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="0" on-item-added="onItemAdded(item)">
                                 <div ng-switch-when="0">
                                     <div class="grid-stack-item-content current">
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
-                                        
                                         <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
                                         <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
                                         <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
@@ -81,7 +79,6 @@
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
-                                        
                                         <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
                                         <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
                                         <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
@@ -93,7 +90,6 @@
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
-                                        
                                         <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
                                         <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
                                         <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
@@ -105,7 +101,6 @@
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
-                                        
                                         <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
                                         <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
                                         <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
@@ -117,7 +112,6 @@
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
-                                        
                                         <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
                                         <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
                                         <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
@@ -129,7 +123,6 @@
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
-                                        
                                         <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
                                         <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
                                         <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
@@ -141,7 +134,6 @@
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
                                         </div>
-                                        
                                         <a class="btn btn-primary offcutX" ng-click="offcutX(w)" >offcut x</a>
                                         <a class="btn btn-primary offcutY" ng-click="offcutY(w)" >offcut y</a>
                                         <a class="btn btn-primary" ng-click="removeWidget(w)" >remove</a>
@@ -149,6 +141,9 @@
                                 </div>
                         </div>
                     </div>
+                </div>
+                <div>
+                    <button class="btn-save" ng-click="buttonSaveData()">Save</button>
                 </div>
             </div>
         </div>
@@ -437,149 +432,195 @@
                 "CurrentCuts": []
             };
 
-            $scope.BeltLength = jsonData.BeltLength;
-            $scope.BeltWidth = jsonData.BeltWidth;
+            $scope.beltLength = jsonData.BeltLength;
+            $scope.beltWidth = jsonData.BeltWidth;
             $scope.widgets = jsonData.ExistingCuts;
             $scope.zoom = 10;
-            
-            //[{ id: 1, x:0, y:0, width:15, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789 },
-                            //{ id: 2, x:0, y:1, width:20, height:10, status: 'Allocated', cust: 'Acme Mining Co', custId: 100031, date: '03/31/2019', order: 1000168, prod: 123456789  }];
+            jsonData.CurrentCuts = [];
 
             $scope.options = {
-                width: $scope.BeltWidth,
+                width: $scope.beltWidth,
                 cellHeight: 20,
                 verticalMargin: 0
             };
 
-            $scope.addWidget = function(width, length) {
+            function saveData(item) {
+                jsonData.CurrentCuts.push(item);
+                windowService.changeData($scope, '_dw_belt_info_json.belt_info_json', JSON.stringify(jsonData));
+            }
+
+            function addWidget (width, length) {
                 // TODO: ADD ID
-                console.log(length);
-                var newWidget = { X: 36, Y: 0, Width: width, Length: length, Offcut: '', ParentId: '', Status: 6, RowStatus: '', DisplayInfo: ''};
-                //$('.grid-stack').locked(newWidget, true);
+                var newWidget = { X: 36, Y: 0, Width: width, Length: length, Offcut: '', ParentId: '', Status: 6, RowStatus: '0', DisplayInfo: ''};
                 $scope.widgets.push(newWidget);
 
                 //add to currentCuts
-            };
+                saveData(newWidget);
+            }
 
             $scope.removeWidget = function(w) {
                 var index = $scope.widgets.indexOf(w);
                 $scope.widgets.splice(index, 1);
-            };
 
-            $scope.onChange = function(event, items) {
-                $log.log("onChange event: "+event+" items:"+items);
+                var removedCut = {Id: w.Id, X: w.X, Y: w.Y, Width: w.Width, Length: w.Length, Offcut: w.Offcut,
+                    ParentId: w.ParentId, Status: w.Status, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo };
 
                 //add to currentCuts
+                saveData(removedCut);
+
             };
 
-            $scope.onDragStart = function(event, ui) {
-                $log.log("onDragStart event: "+event+" ui:"+ui);
-            };
-
-            $scope.onDragStop = function(event, ui) {
-                $log.log("onDragStop event: "+event+" ui:"+ui);
-            };
-
-            $scope.onResizeStart = function(event, ui) {
-                $log.log("onResizeStart event: "+event+" ui:"+ui);
-            };
+            function getItemById (id) {
+                return jsonData.ExistingCuts.filter(
+                    function(data) {
+                        return data.Id == id;
+                    }
+                );
+            }
 
             $scope.onResizeStop = function(event, ui) {
-                $log.log("onResizeStop event: "+event+" ui:"+ui);
+                var element = event.target;
+                var id = angular.element(element).attr('data-id');
+                var item = getItemById(id);
 
-                //add to currentCuts
+                // get item and update current cuts
+                saveData(item);
             };
 
             $scope.onItemAdded = function(item) {
-                $log.log("onItemAdded item: "+item);
-
                 // Figure out how to lock the created item
-                $(".grid-stack").each(function (idx, gsEl) { 
-                    $(gsEl).data("gridstack").locked(".grid-stack-item", true);
+                angular.element('.grid-stack').each(function (idx, gsEl) {
+                    angular.element(gsEl).data('gridstack').locked('.grid-stack-item', true);
                 });
-            };
-
-            $scope.onItemRemoved = function(item) {
-                $log.log("onItemRemoved item: "+item);
             };
 
             $scope.offcutX = function (w) {
                 var posX = w.X + w.Width;
-                var offcutWidth = $scope.BeltWidth - w.Width;
+                var offcutWidth = $scope.beltWidth - w.Width;
 
                 // TODO: ADD ID
-                var newWidget = { X: posX, Y: w.Y, Width: offcutWidth, Length:w.Length, Offcut: 'Y', ParentId: w.Id, Status: 5, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo};
-                $scope.widgets.push(newWidget);
-            }
+                var newOffcut = { X: posX, Y: w.Y, Width: offcutWidth, Length:w.Length, Offcut: 'Y',
+                    ParentId: w.Id, Status: 5, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo};
+                $scope.widgets.push(newOffcut);
+
+                //add to currentCuts
+                saveData(newOffcut);
+            };
 
             $scope.offcutY = function (w) {
                 var posY = w.Y + w.Length;
-                var offcutLength = $scope.BeltLength - w.Length;
+                var offcutLength = $scope.beltLength - w.Length;
 
                 // TODO: ADD ID
-                var newWidget = { X: w.X, Y:posY, Width: w.Width, Length: offcutLength, Offcut: 'Y', ParentId: w.Id, Status: 5, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo};
-                $scope.widgets.push(newWidget);
+                var newOffcut = { X: w.X, Y:posY, Width: w.Width, Length: offcutLength, Offcut: 'Y',
+                    ParentId: w.Id, Status: 5, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo};
+                $scope.widgets.push(newOffcut);
+
+                //add to currentCuts
+                saveData(newOffcut);
+            };
+
+            function validateCreateOffcut(currentCut) {
+                var cutNextToXPos = false;
+                var cutNextToYPos = false;
+                var edgeOfGrid = false;
+                var endOfGridY = false;
+
+                angular.element('.grid-stack').each(function (idx, gsEl) {
+                    if (currentCut.Id != gsEl.Id) {
+                        // if grid has no empty space horizontally
+                        if (currentCut.Y + currentCut.Length - 1 > gsEl.Y && currentCut.Y < gsEl.Y + gsEl.Length) {
+                            cutNextToXPos = true;
+                        }
+
+                        // if grid has no empty space vertically
+                        if (currentCut.X < gsEl.X + gsEl.Width && currentCut.X + currentCut.Width - 1 > gsEl.X && gsEl.Y > currentCut.Y) {
+                            cutNextToYPos = true;
+                        }
+                    }
+                });
+
+                // if the cut is on the edge of the grid
+                if (currentCut.X == 0 || currentCut.X + currentCut.Width == $scope.beltWidth) {
+                    edgeOfGrid = true;
+                }
+
+                // if the cut is at the end of the grid vertically
+                if (currentCut.Y + currentCut.Length == $scope.Length) {
+                    endOfGridY = true;
+                }
+
+                if (!cutNextToXPos && edgeOfGrid) {
+                    currentCut.classList.add('offcutX');
+                }
+                else {
+                    currentCut.classList.remove('offcutX');
+                }
+
+                 // show vertical offcut option for idLastY
+                if (!cutNextToYPos && !endOfGridY) {
+                    currentCut.classList.add('offcutY');
+                }
+                else {
+                    currentCut.classList.remove('offcutY');
+                }
             }
 
-            $scope.deserializeData = function () {
-
+            function deserializeData() {
                 // Belting grid data
-                $scope.ItemID = jsonData.ItemID;
-                $scope.ItemDesc = jsonData.ItemDesc;
-                $scope.Lot = jsonData.Lot;
-                $scope.LotCost = jsonData.LotCost;
-                $scope.CustomerName = jsonData.CustomerName;
-
-                // Items data
-                $scope.ExistingCuts = jsonData.ExistingCuts;
+                $scope.itemID = jsonData.ItemID;
+                $scope.itemDesc = jsonData.ItemDesc;
+                $scope.lot = jsonData.Lot;
+                $scope.lotCost = jsonData.LotCost;
+                $scope.customerName = jsonData.CustomerName;
             }
 
-            $scope.createRulerDimensions = function () {
+            function createRulerDimensions() {
+                var numItemsHorizontal = $scope.beltWidth / 12;
+                var numItemsVertical = $scope.beltLength / 20;
+                //var scaleWidthToHeight = 1;
 
-                var numItemsHorizontal = $scope.BeltWidth / 12;
-                var numItemsVertical = $scope.BeltLength / 20;
-                var scaleWidthToHeight = 1; // This will change depending on the backend values
+                var rulerHorizontal = document.querySelector('.ruler-horizontal');
+                var rulerVertical = document.querySelector('.ruler-vertical');
+                var i = 0;
 
-                var rulerHorizontal = document.querySelector(".ruler-horizontal");
-                var rulerVertical = document.querySelector(".ruler-vertical");
+                rulerVertical.style.height = ($scope.beltLength * 20) + 'px';
 
-                rulerVertical.style.height = ($scope.BeltLength * 20) + 'px';
-
-                for (var i = 0; i <= numItemsHorizontal; i++) {
-                    let div = document.createElement('div');
-                    div.className = 'in';
-                    div.dataset.text = (i * 12) + '.0"';
-                    rulerHorizontal.appendChild(div);
+                for (i = 0; i <= numItemsHorizontal; i++) {
+                    var element = document.createElement('div');
+                    element.className = 'in';
+                    element.dataset.text = (i * 12) + '.0"';
+                    rulerHorizontal.appendChild(element);
                 }
 
-                for (var i = 0; i <= numItemsVertical; i++) {
-                    let div = document.createElement('div');
-                    div.className = 'in';
-                    div.dataset.text = (i * 20) + ".0'";
-                    rulerVertical.appendChild(div);
+                for (i = 0; i <= numItemsVertical; i++) {
+                    var element = document.createElement('div');
+                    element.className = 'in';
+                    element.dataset.text = (i * 20) + '.0\'';
+                    rulerVertical.appendChild(element);
                 }
             }
 
-            $scope.createGridStyles = function () {
-                var grid = document.querySelector("#belt-grid");
-                grid.style.height = ($scope.BeltLength * 20) + 'px';
-                grid.style.backgroundSize = (100 / $scope.BeltWidth) + '% ' + "20px";
+            function createGridStyles() {
+                var grid = document.querySelector('#belt-grid');
+                grid.style.height = ($scope.beltLength * 20) + 'px';
+                grid.style.backgroundSize = (100 / $scope.beltWidth) + '% ' + '20px';
             }
 
-            $scope.setZoom = function(zoom, el) {
+            function setZoom(zoom, el) {
                 var transformOrigin = [0, 0];
-                el = el || instance.getContainer();
-                var p = ["webkit", "moz", "ms", "o"],
-                    s = "scale(" + zoom + ")",
-                    oString = (transformOrigin[0] * 100) + "% " + (transformOrigin[1] * 100) + "%";
-            
+                //el = el || instance.getContainer();
+                var p = ['webkit', 'moz', 'ms', 'o'];
+                var s = 'scale(' + zoom + ')';
+                var oString = (transformOrigin[0] * 100) + '% ' + (transformOrigin[1] * 100) + '%';
+
                 for (var i = 0; i < p.length; i++) {
-                    el.style[p[i] + "Transform"] = s;
-                    el.style[p[i] + "TransformOrigin"] = oString;
+                    el.style[p[i] + 'Transform'] = s;
+                    el.style[p[i] + 'TransformOrigin'] = oString;
                 }
-            
-                el.style["transform"] = s;
-                el.style["transformOrigin"] = oString;
+
+                el.style['transform'] = s;
+                el.style['transformOrigin'] = oString;
             }
 
             $scope.changeZoom = function(a) {
@@ -587,16 +628,16 @@
                 var fontSize = 4.5;
                 var width = 200;
                 var height = 140;
-            
+
                 if (($scope.zoom != 7 && a != 1) || ($scope.zoom != 14 && a != -1)) {
                     $scope.zoom += a;
                     var zoomScale = Number($scope.zoom) / 10;
-                    $scope.setZoom(zoomScale, document.getElementById('belt-grid'));
-                    
+                    setZoom(zoomScale, document.getElementById('belt-grid'));
+
                     // TODO: Update rulers length instead of zooming everything ( text gets too small)
                     // rulerHorizontal.style.width = `${widthHorizontalRuler * zoomScale}px`;
                     // rulerVertical.style.height = `${widthVerticalRuler * zoomScale}px`;
-            
+
                     // TODO: Add tooltips functions when cuts get too small
                     // if (zoom < 10) {
                     //     tooltips.forEach(tooltip => {
@@ -606,43 +647,42 @@
                     //     });
                     // }
                 }
-                //gridData["DemoGrid"].hideInfoCutIfOverflow();
-            }
+                //gridData['DemoGrid'].hideInfoCutIfOverflow();
+            };
 
-            // $scope.addNewCut = function () {
-            //     epModalDialogService.showCustomDialog({
-            //         templateOptions: {
-            //             templateUrl: 'app/views/viewgrid/newcut.html'
-            //         },
-            //         title: 'Enter Cut Size',
-            //         status: 'information',
-            //         backdrop: true,
-            //         buttons: [{
-            //             text: 'Save',
-            //             type: 'primary',
-            //             action:function(){
-            //                 var width = parseInt(document.querySelector(".width").value);
-            //                 var length = parseInt(document.querySelector(".lenFT").value);
-            //                 $scope.addWidget(width, length);
-            //             }
-            //         },{
-            //             text: 'Close',
-            //             action: function () {
-            //                 $window.close();
-            //             }
-            //         }, {
-            //             text: 'Cancel',
-            //             isCancel: true
-            //         }],
-            //         closeButton: true
-            //     });
-            // }
-            
+            $scope.buttonSaveData = function() {
+                windowService.runWindowTool($scope, 'cb_ok');
+            };
+
+            $scope.addNewCut = function () {
+                epModalDialogService.showCustomDialog({
+                    templateOptions: {
+                        templateUrl: 'app/directives/belt-grid/newcut.html'
+                    },
+                    title: 'Enter Cut Size',
+                    status: 'information',
+                    backdrop: true,
+                    buttons: [{
+                        text: 'Save',
+                        type: 'primary',
+                        action:function(){
+                            var width = parseInt(document.querySelector('.width').value);
+                            var length = parseInt(document.querySelector('.lenFT').value);
+                            addWidget(width, length);
+                        }
+                    }, {
+                        text: 'Cancel',
+                        isCancel: true
+                    }],
+                    closeButton: true
+                });
+            };
+
             var init = function () {
-                $scope.deserializeData();
-                $scope.createRulerDimensions();
-                $scope.createGridStyles();
-            }
+                deserializeData();
+                createRulerDimensions();
+                createGridStyles();
+            };
 
             init();
         });
