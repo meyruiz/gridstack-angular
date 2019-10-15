@@ -64,6 +64,7 @@
                             gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="0" on-item-added="onItemAdded(item)">
                                 <div ng-switch-when="0">
                                     <div class="grid-stack-item-content current">
+                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -75,6 +76,7 @@
                                 </div>
                                 <div ng-switch-when="1">
                                     <div class="grid-stack-item-content cut">
+                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -86,6 +88,7 @@
                                 </div>
                                 <div ng-switch-when="2">
                                     <div class="grid-stack-item-content not-cut">
+                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -97,6 +100,7 @@
                                 </div>
                                 <div ng-switch-when="3">
                                     <div class="grid-stack-item-content another-lot">
+                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -108,6 +112,7 @@
                                 </div>
                                 <div ng-switch-when="4">
                                     <div class="grid-stack-item-content deleted">
+                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -119,6 +124,7 @@
                                 </div>
                                 <div ng-switch-when="5">
                                     <div class="grid-stack-item-content offcut">
+                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -130,6 +136,7 @@
                                 </div>
                                 <div ng-switch-default>
                                     <div class="grid-stack-item-content other">
+                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -445,8 +452,8 @@
             };
 
             function saveData(item) {
-                jsonData.CurrentCuts.push(item);
-                windowService.changeData($scope, '_dw_belt_info_json.belt_info_json', JSON.stringify(jsonData));
+                //jsonData.CurrentCuts.push(item);
+                //windowService.changeData($scope, '_dw_belt_info_json.belt_info_json', JSON.stringify(jsonData));
             }
 
             function addWidget (width, length) {
@@ -520,21 +527,26 @@
                 saveData(newOffcut);
             };
 
-            function validateCreateOffcut(currentCut) {
+            $scope.validateCreateOffcut = function (id, currentCut) {
                 var cutNextToXPos = false;
                 var cutNextToYPos = false;
                 var edgeOfGrid = false;
                 var endOfGridY = false;
 
-                angular.element('.grid-stack').each(function (idx, gsEl) {
-                    if (currentCut.Id != gsEl.Id) {
+                $('.grid-stack-item').each(function (idx, gsEl) {
+                    var elementData = gsEl.dataset;
+                    if (currentCut.Id != elementData.id) {
                         // if grid has no empty space horizontally
-                        if (currentCut.Y + currentCut.Length - 1 > gsEl.Y && currentCut.Y < gsEl.Y + gsEl.Length) {
+                        if (currentCut.Y + currentCut.Length - 1 > elementData.gsY && currentCut.Y < elementData.gsY + elementData.gsWidth) {
                             cutNextToXPos = true;
                         }
-
                         // if grid has no empty space vertically
-                        if (currentCut.X < gsEl.X + gsEl.Width && currentCut.X + currentCut.Width - 1 > gsEl.X && gsEl.Y > currentCut.Y) {
+                        if (currentCut.X < elementData.gsX + elementData.gsWidth && 
+                                currentCut.X + currentCut.Width > elementData.gsX && 
+                                elementData.gsY > currentCut.Y) {
+                            console.log("X:" + currentCut.X + " Y:" + currentCut.Y + " Width:" + currentCut.Width);
+                            console.log("gsX:" + elementData.gsX + " gsY:" + elementData.gsY + " gsWidth:" + elementData.gsWidth);
+                            //console.log(elementData.gsWidth);
                             cutNextToYPos = true;
                         }
                     }
@@ -551,18 +563,20 @@
                 }
 
                 if (!cutNextToXPos && edgeOfGrid) {
-                    currentCut.classList.add('offcutX');
+                    //currentCut.classList.add('offcutX');
+                    console.log("Can create offcut X");
                 }
                 else {
-                    currentCut.classList.remove('offcutX');
+                    //currentCut.classList.remove('offcutX');
                 }
 
                  // show vertical offcut option for idLastY
                 if (!cutNextToYPos && !endOfGridY) {
-                    currentCut.classList.add('offcutY');
+                    //currentCut.classList.add('offcutY');
+                    console.log("Can create offcut Y ");
                 }
                 else {
-                    currentCut.classList.remove('offcutY');
+                    //currentCut.classList.remove('offcutY');
                 }
             }
 
