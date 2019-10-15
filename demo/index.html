@@ -75,7 +75,13 @@
                                     </div>
                                 </div>
                                 <div ng-switch-when="1">
-                                    <div class="grid-stack-item-content cut">
+                                    <div class="grid-stack-item-content cut" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
+                                        <div class="tooltip">
+                                            <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                            <div ng-repeat="info in w.DisplayInfo">
+                                                <p>{{info.Label}}: {{info.Value}}</p>
+                                            </div>
+                                        </div>
                                         <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
@@ -99,7 +105,13 @@
                                     </div>
                                 </div>
                                 <div ng-switch-when="3">
-                                    <div class="grid-stack-item-content another-lot">
+                                    <div class="grid-stack-item-content another-lot" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
+                                        <div class="tooltip">
+                                            <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                            <div ng-repeat="info in w.DisplayInfo">
+                                                <p>{{info.Label}}: {{info.Value}}</p>
+                                            </div>
+                                        </div>
                                         <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
@@ -123,7 +135,13 @@
                                     </div>
                                 </div>
                                 <div ng-switch-when="5">
-                                    <div class="grid-stack-item-content offcut">
+                                    <div class="grid-stack-item-content offcut" ng-mouseover="showTooltip(this)" ng-mouseout="hideTooltip(this)">
+                                        <div class="tooltip">
+                                            <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                            <div ng-repeat="info in w.DisplayInfo">
+                                                <p>{{info.Label}}: {{info.Value}}</p>
+                                            </div>
+                                        </div>
                                         <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
@@ -527,7 +545,7 @@
                 saveData(newOffcut);
             };
 
-            $scope.validateCreateOffcut = function (id, currentCut) {
+            $scope.validateCreateOffcut = function (currentCut) {
                 var cutNextToXPos = false;
                 var cutNextToYPos = false;
                 var edgeOfGrid = false;
@@ -541,11 +559,11 @@
                             cutNextToXPos = true;
                         }
                         // if grid has no empty space vertically
-                        if (currentCut.X < elementData.gsX + elementData.gsWidth && 
-                                currentCut.X + currentCut.Width > elementData.gsX && 
-                                elementData.gsY > currentCut.Y) {
-                            console.log("X:" + currentCut.X + " Y:" + currentCut.Y + " Width:" + currentCut.Width);
-                            console.log("gsX:" + elementData.gsX + " gsY:" + elementData.gsY + " gsWidth:" + elementData.gsWidth);
+                        if (currentCut.X > elementData.gsX + elementData.gsWidth &&
+                                currentCut.X + currentCut.Width > elementData.gsX &&
+                                currentCut.Y > elementData.gsY) {
+                            //console.log("X:" + currentCut.X + " Y:" + currentCut.Y + " Width:" + currentCut.Width + " Length: " + currentCut.Length);
+                            //console.log("gsX:" + elementData.gsX + " gsY:" + elementData.gsY + " gsWidth:" + elementData.gsWidth);
                             //console.log(elementData.gsWidth);
                             cutNextToYPos = true;
                         }
@@ -638,9 +656,9 @@
             }
 
             $scope.changeZoom = function(a) {
-                var tooltips = document.querySelectorAll('.tooltiptext');
-                var fontSize = 4.5;
-                var width = 200;
+                var tooltips = document.querySelectorAll('.tooltip');
+                var fontSize = 1;
+                var width = 100;
                 var height = 140;
 
                 if (($scope.zoom != 7 && a != 1) || ($scope.zoom != 14 && a != -1)) {
@@ -652,17 +670,35 @@
                     // rulerHorizontal.style.width = `${widthHorizontalRuler * zoomScale}px`;
                     // rulerVertical.style.height = `${widthVerticalRuler * zoomScale}px`;
 
-                    // TODO: Add tooltips functions when cuts get too small
-                    // if (zoom < 10) {
-                    //     tooltips.forEach(tooltip => {
-                    //         tooltip.style.fontSize = `${fontSize / zoomScale}em`;
-                    //         tooltip.style.width = `${width / zoomScale}px`;
-                    //         tooltip.style.height = `${height / zoomScale}px`;
-                    //     });
-                    // }
+                    // Keep tooltips with the same size no matter if zoom changes
+                    if ($scope.zoom < 10) {
+                        tooltips.forEach(tooltip => {
+                            tooltip.style.fontSize = `${fontSize / zoomScale}em`;
+                            tooltip.style.width = `${width / zoomScale}%`;
+                        });
+                    }
                 }
                 //gridData['DemoGrid'].hideInfoCutIfOverflow();
             };
+
+            function isOverflown(element) {
+                var zoomScale = Number($scope.zoom) / 10;
+                return element.scrollHeight > element.clientHeight * zoomScale || element.scrollWidth > element.clientWidth * zoomScale;
+            }
+
+            $scope.showTooltip = function(el) {
+                var element = el.currentTarget.childNodes[1];
+                el.currentTarget.style.zIndex = 2;
+                if (isOverflown(el.currentTarget)) {
+                    element.style.visibility = "visible";
+                }
+            }
+
+            $scope.hideTooltip = function(el) {
+                var element = el.currentTarget.childNodes[1];
+                el.currentTarget.style.zIndex = 1;
+                element.style.visibility = "hidden";
+            }
 
             $scope.buttonSaveData = function() {
                 windowService.runWindowTool($scope, 'cb_ok');
