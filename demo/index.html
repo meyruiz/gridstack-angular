@@ -46,7 +46,7 @@
                 <p>Scale</p>
                 <p>1' x 1.00"</p>
                 <hr />
-                <button type="button" class="btn btn-primary" ng-click="addNewCut()">Add Cut</button>
+                <button type="button" class="btn btn-primary" ng-click="addWidget()">Add Cut</button>
                 <button type="button" class="btn" ng-click="changeZoom(1)"> Zoom In </button>
                 <button type="button" class="btn" ng-click="changeZoom(-1)"> Zoom Out </button>
             </div>
@@ -61,9 +61,15 @@
                     <div gridstack class="grid-stack" options="options" on-resize-stop="onResizeStop(event,ui)">
                         <div class='ruler-vertical'></div>
                         <div gridstack-item ng-repeat="w in widgets" ng-switch="w.Status" class="grid-stack-item" data-id={{w.Id}} gs-item-x="w.X" gs-item-y="w.Y"
-                            gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="0" on-item-added="onItemAdded(item)">
+                            gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="w.AutoPos" on-item-added="onItemAdded(item)">
                                 <div ng-switch-when="0">
-                                    <div class="grid-stack-item-content current">
+                                    <div class="grid-stack-item-content current" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
+                                        <div class="tooltip">
+                                            <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
+                                            <div ng-repeat="info in w.DisplayInfo">
+                                                <p>{{info.Label}}: {{info.Value}}</p>
+                                            </div>
+                                        </div>
                                         <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
@@ -93,7 +99,7 @@
                                     </div>
                                 </div>
                                 <div ng-switch-when="2">
-                                    <div class="grid-stack-item-content not-cut">
+                                    <div class="grid-stack-item-content not-cut" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
                                         <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
@@ -123,7 +129,7 @@
                                     </div>
                                 </div>
                                 <div ng-switch-when="4">
-                                    <div class="grid-stack-item-content deleted">
+                                    <div class="grid-stack-item-content deleted" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
                                         <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
@@ -135,7 +141,7 @@
                                     </div>
                                 </div>
                                 <div ng-switch-when="5">
-                                    <div class="grid-stack-item-content offcut" ng-mouseover="showTooltip(this)" ng-mouseout="hideTooltip(this)">
+                                    <div class="grid-stack-item-content offcut" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
                                         <div class="tooltip">
                                             <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                             <div ng-repeat="info in w.DisplayInfo">
@@ -153,7 +159,7 @@
                                     </div>
                                 </div>
                                 <div ng-switch-default>
-                                    <div class="grid-stack-item-content other">
+                                    <div class="grid-stack-item-content other" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
                                         <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
@@ -474,13 +480,23 @@
                 //windowService.changeData($scope, '_dw_belt_info_json.belt_info_json', JSON.stringify(jsonData));
             }
 
-            function addWidget (width, length) {
+            $scope.addWidget = function (width, length) {
                 // TODO: ADD ID
-                var newWidget = { X: 36, Y: 0, Width: width, Length: length, Offcut: '', ParentId: '', Status: 6, RowStatus: '0', DisplayInfo: ''};
+                var newWidget = { X: 0, Y: 0, Width: 10, Length: 10, Offcut: '', ParentId: '', Status: 6, RowStatus: '0', DisplayInfo: '', AutoPos: 1};
+                //var newWidget = "<div id='gsi-6' data-gs-x='0' data-gs-y='0' data-gs-width='10' data-gs-height='9' ng-switch='3' data-gs-auto-position='1'></div>"
                 $scope.widgets.push(newWidget);
 
+                //delete newWidget.AutoPos
+                console.log(newWidget);
+
+                // $('.grid-stack').gridstack();
+
+                // var grid = $('.grid-stack').data('gridstack');
+                // console.log(grid);
+                // grid.addWidget(newWidget, 0, 0, 10, 10, true);
+
                 //add to currentCuts
-                saveData(newWidget);
+                //saveData(newWidget);
             }
 
             $scope.removeWidget = function(w) {
@@ -658,7 +674,7 @@
             $scope.changeZoom = function(a) {
                 var tooltips = document.querySelectorAll('.tooltip');
                 var fontSize = 1;
-                var width = 100;
+                var width = 180;
                 var height = 140;
 
                 if (($scope.zoom != 7 && a != 1) || ($scope.zoom != 14 && a != -1)) {
@@ -674,7 +690,7 @@
                     if ($scope.zoom < 10) {
                         tooltips.forEach(tooltip => {
                             tooltip.style.fontSize = `${fontSize / zoomScale}em`;
-                            tooltip.style.width = `${width / zoomScale}%`;
+                            tooltip.style.width = `${width / zoomScale}px`;
                         });
                     }
                 }
@@ -704,29 +720,29 @@
                 windowService.runWindowTool($scope, 'cb_ok');
             };
 
-            $scope.addNewCut = function () {
-                epModalDialogService.showCustomDialog({
-                    templateOptions: {
-                        templateUrl: 'app/directives/belt-grid/newcut.html'
-                    },
-                    title: 'Enter Cut Size',
-                    status: 'information',
-                    backdrop: true,
-                    buttons: [{
-                        text: 'Save',
-                        type: 'primary',
-                        action:function(){
-                            var width = parseInt(document.querySelector('.width').value);
-                            var length = parseInt(document.querySelector('.lenFT').value);
-                            addWidget(width, length);
-                        }
-                    }, {
-                        text: 'Cancel',
-                        isCancel: true
-                    }],
-                    closeButton: true
-                });
-            };
+            // $scope.addNewCut = function () {
+            //     epModalDialogService.showCustomDialog({
+            //         templateOptions: {
+            //             templateUrl: 'app/directives/belt-grid/newcut.html'
+            //         },
+            //         title: 'Enter Cut Size',
+            //         status: 'information',
+            //         backdrop: true,
+            //         buttons: [{
+            //             text: 'Save',
+            //             type: 'primary',
+            //             action:function(){
+            //                 var width = parseInt(document.querySelector('.width').value);
+            //                 var length = parseInt(document.querySelector('.lenFT').value);
+            //                 addWidget(width, length);
+            //             }
+            //         }, {
+            //             text: 'Cancel',
+            //             isCancel: true
+            //         }],
+            //         closeButton: true
+            //     });
+            // };
 
             var init = function () {
                 deserializeData();
