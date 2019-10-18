@@ -728,8 +728,35 @@
                 });
             };
 
+            function createCSSFile() {
+                var style = document.createElement('style');
+                var columns = $scope.beltWidth;
+
+                for (var i = 1; i <= columns; i++) {
+                    var widthClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-width="' + i + '"] { ' +
+                            'width: ' + (100 / columns) * i + '%; ' +
+                        '}';
+                    var xPositionClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-x="' + i + '"] {' +
+                            'left: ' + (100 / columns) * i + '%; ' +
+                        '}';
+                    var minWidthClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-min-width="' + i + '"] {' + 
+                            'min-width: ' + (100 / columns) * i + '%; ' +
+                        '}';
+                    var maxWidthClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-max-width="' + i + '"] {' + 
+                            'max-width: ' + (100 / columns) * i + '%; ' +
+                        '}';
+                    
+                    style.innerHTML += widthClass;
+                    style.innerHTML += xPositionClass;
+                    style.innerHTML += minWidthClass;
+                    style.innerHTML += maxWidthClass;
+                }
+                document.head.appendChild(style);
+            }
+
             var init = function () {
                 deserializeData();
+                createCSSFile();
                 createRulerDimensions();
                 createGridStyles();
             };
