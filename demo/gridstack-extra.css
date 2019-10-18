@@ -142,6 +142,6 @@
       content: attr(data-text);
   }
 
-#belt-grid .btn-save{
+#belt-grid .btn-save {
   float: right;
 }
