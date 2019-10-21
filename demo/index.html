@@ -70,7 +70,7 @@
                                                 <p>{{info.Label}}: {{info.Value}}</p>
                                             </div>
                                         </div>
-                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
+                                        <a ng-click="validateCreateOffcut(w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length / 12 | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -88,7 +88,7 @@
                                                 <p>{{info.Label}}: {{info.Value}}</p>
                                             </div>
                                         </div>
-                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
+                                        <a ng-click="validateCreateOffcut(w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length / 12 | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -100,7 +100,7 @@
                                 </div>
                                 <div ng-switch-when="2">
                                     <div class="grid-stack-item-content not-cut" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
-                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
+                                        <a ng-click="validateCreateOffcut(w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length / 12 | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -118,7 +118,7 @@
                                                 <p>{{info.Label}}: {{info.Value}}</p>
                                             </div>
                                         </div>
-                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
+                                        <a ng-click="validateCreateOffcut(w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length / 12 | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -130,7 +130,7 @@
                                 </div>
                                 <div ng-switch-when="4">
                                     <div class="grid-stack-item-content deleted" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
-                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
+                                        <a ng-click="validateCreateOffcut(w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length / 12 | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -148,7 +148,7 @@
                                                 <p>{{info.Label}}: {{info.Value}}</p>
                                             </div>
                                         </div>
-                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
+                                        <a ng-click="validateCreateOffcut(w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length / 12 | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -160,7 +160,7 @@
                                 </div>
                                 <div ng-switch-default>
                                     <div class="grid-stack-item-content other" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
-                                        <a ng-click="validateCreateOffcut(w.Id, w)">Config</a>
+                                        <a ng-click="validateCreateOffcut(w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length / 12 | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -484,7 +484,7 @@
 
             $scope.addWidget = function (width, length) {
                 // TODO: ADD ID
-                var newWidget = { X: 0, Y: 0, Width: 10, Length: 10, Offcut: '', ParentId: '', Status: 6, RowStatus: '0', DisplayInfo: '', AutoPos: 1};
+                var newWidget = { X: 0, Y: 0, Width: 10, Length: 120, Offcut: '', ParentId: '', Status: 6, RowStatus: '0', DisplayInfo: '', AutoPos: 1};
                 //var newWidget = "<div id='gsi-6' data-gs-x='0' data-gs-y='0' data-gs-width='10' data-gs-height='9' ng-switch='3' data-gs-auto-position='1'></div>"
                 $scope.widgets.push(newWidget);
 
@@ -551,7 +551,7 @@
 
             $scope.offcutY = function (w) {
                 var posY = w.Y + w.Length;
-                var offcutLength = $scope.beltLength - w.Length;
+                var offcutLength = ($scope.beltLength * 12) - w.Length;
 
                 // TODO: ADD ID
                 var newOffcut = { X: w.X, Y:posY, Width: w.Width, Length: offcutLength, Offcut: 'Y',
@@ -568,17 +568,19 @@
                 var edgeOfGrid = false;
                 var endOfGridY = false;
 
+                console.log(currentCut);
+
                 $('.grid-stack-item').each(function (idx, gsEl) {
                     var elementData = gsEl.dataset;
                     if (currentCut.Id != elementData.id) {
                         // if grid has no empty space horizontally
-                        if (currentCut.Y + currentCut.Length - 1 > elementData.gsY && currentCut.Y < elementData.gsY + elementData.gsWidth) {
+                        if ((currentCut.Y + currentCut.Length - 1 > elementData.gsY && currentCut.Y < elementData.gsY + elementData.gsWidth)) {
                             cutNextToXPos = true;
                         }
                         // if grid has no empty space vertically
-                        if (currentCut.X > elementData.gsX + elementData.gsWidth &&
+                        if (currentCut.X < elementData.gsX + elementData.gsWidth &&
                                 currentCut.X + currentCut.Width > elementData.gsX &&
-                                currentCut.Y > elementData.gsY) {
+                                currentCut.Y < elementData.gsY) {
                             //console.log("X:" + currentCut.X + " Y:" + currentCut.Y + " Width:" + currentCut.Width + " Length: " + currentCut.Length);
                             //console.log("gsX:" + elementData.gsX + " gsY:" + elementData.gsY + " gsWidth:" + elementData.gsWidth);
                             //console.log(elementData.gsWidth);
@@ -606,7 +608,7 @@
                 }
 
                  // show vertical offcut option for idLastY
-                if (!cutNextToYPos && !endOfGridY) {
+                if (!cutNextToYPos && !endOfGridY ) {
                     //currentCut.classList.add('offcutY');
                     console.log("Can create offcut Y ");
                 }
@@ -703,19 +705,19 @@
                 return element.scrollHeight > element.clientHeight * zoomScale || element.scrollWidth > element.clientWidth * zoomScale;
             }
 
-            $scope.showTooltip = function(el) {
-                var element = el.currentTarget.childNodes[1];
-                el.currentTarget.style.zIndex = 2;
-                if (isOverflown(el.currentTarget)) {
-                    element.style.visibility = "visible";
-                }
-            }
+            // $scope.showTooltip = function(el) {
+            //     var element = el.currentTarget.childNodes[1];
+            //     el.currentTarget.style.zIndex = 2;
+            //     if (isOverflown(el.currentTarget)) {
+            //         element.style.visibility = "visible";
+            //     }
+            // }
 
-            $scope.hideTooltip = function(el) {
-                var element = el.currentTarget.childNodes[1];
-                el.currentTarget.style.zIndex = 1;
-                element.style.visibility = "hidden";
-            }
+            // $scope.hideTooltip = function(el) {
+            //     var element = el.currentTarget.childNodes[1];
+            //     el.currentTarget.style.zIndex = 1;
+            //     element.style.visibility = "hidden";
+            // }
 
             $scope.buttonSaveData = function() {
                 windowService.runWindowTool($scope, 'cb_ok');
@@ -734,7 +736,10 @@
             //             type: 'primary',
             //             action:function(){
             //                 var width = parseInt(document.querySelector('.width').value);
-            //                 var length = parseInt(document.querySelector('.lenFT').value);
+            //                 var lengthFT = parseInt(document.querySelector('.lenFT').value);
+            //                 var lengthIN = parseInt(document.querySelector('.lenIN').value);
+            //
+            //                 var totalLength = (lengthFT * 12) + lengthIN
             //                 addWidget(width, length);
             //             }
             //         }, {
