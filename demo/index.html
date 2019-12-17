@@ -46,7 +46,7 @@
                 <p>Scale</p>
                 <p>1' x 1.00"</p>
                 <hr />
-                <button type="button" class="btn btn-primary" ng-click="addWidget()">Add Cut</button>
+                <button type="button" class="btn btn-primary" ng-click="addWidget(10,10)">Add Cut</button>
                 <button type="button" class="btn" ng-click="changeZoom(1)"> Zoom In </button>
                 <button type="button" class="btn" ng-click="changeZoom(-1)"> Zoom Out </button>
             </div>
@@ -60,7 +60,7 @@
                     <div class='ruler-horizontal'></div>
                     <div gridstack class="grid-stack" options="options" on-resize-stop="onResizeStop(event,ui)">
                         <div class='ruler-vertical'></div>
-                        <div gridstack-item ng-repeat="w in widgets" ng-switch="w.Status" class="grid-stack-item" data-id={{w.Id}} gs-item-x="w.X" gs-item-y="w.Y"
+                        <div gridstack-item ng-repeat="w in widgets" ng-switch="w.Status" class="grid-stack-item" id="cut_{{$index}}" data-item-id={{w.Id}} gs-item-x="w.X" gs-item-y="w.Y"
                             gs-item-width="w.Width" gs-item-height="w.Length" gs-item-autopos="w.AutoPos" on-item-added="onItemAdded(item)">
                                 <div ng-switch-when="0">
                                     <div class="grid-stack-item-content current" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
@@ -160,7 +160,7 @@
                                 </div>
                                 <div ng-switch-default>
                                     <div class="grid-stack-item-content other" ng-mouseover="showTooltip($event)" ng-mouseout="hideTooltip($event)">
-                                        <a ng-click="validateCreateOffcut(w)">Config</a>
+                                        <a ng-click="offcutX(w)">Config</a>
                                         <p class="dimensions">{{w.Width | number : 4}} x {{w.Length / 12 | number : 4}}</p>
                                         <div ng-repeat="info in w.DisplayInfo">
                                             <p>{{info.Label}}: {{info.Value}}</p>
@@ -197,7 +197,7 @@
                 "ItemID": "TVVBELT",
                 "ItemDesc": "TVV Belt Item",
                 "Lot": "TVVLOT3-4-5",
-                "BeltLength": "120.0000",
+                "BeltLength": "240.0000",
                 "BeltWidth": "84.0000",
                 "LotCost": "0.455789358",
                 "RemnantLength": "5.000000000",
@@ -216,7 +216,7 @@
                         "Width": "10",
                         "Offcut": "",
                         "ParentId": "",
-                        "Status": "3",
+                        "Status": "0",
                         "RowStatus": "0",
                         "DisplayInfo": [
                             {
@@ -249,7 +249,7 @@
                         "Width": "10",
                         "Offcut": "",
                         "ParentId": "",
-                        "Status": "3",
+                        "Status": "0",
                         "RowStatus": "0",
                         "DisplayInfo": [
                             {
@@ -467,38 +467,132 @@
 
             $scope.beltLength = jsonData.BeltLength / 12;
             $scope.beltWidth = jsonData.BeltWidth;
-            $scope.widgets = jsonData.ExistingCuts;
+            $scope.widgets = [];
             $scope.zoom = 10;
-            jsonData.CurrentCuts = [];
+            $scope.gridCutId = 0; // Current session ids for cuts
+            $scope.cutBeingMadeWidth = 0;
+            $scope.cutBeingMadeLengthFt = 0;
+            $scope.cutBeingMadeLengthIn = 0;
+            $scope.lastCutAddedId = 0;
+            $scope.numberCutsAdded = 0;
+            var currentTransType;
+            var cutsIdToAdd = [];
+            var cutsToUpdate = [];
 
             $scope.options = {
                 width: $scope.beltWidth,
+                height: jsonData.BeltLength,
                 cellHeight: 1.66666667, // 20px / 12 (IN to FT)
                 verticalMargin: 0
             };
 
-            function saveData(item) {
-                //jsonData.CurrentCuts.push(item);
-                //windowService.changeData($scope, '_dw_belt_info_json.belt_info_json', JSON.stringify(jsonData));
+            $scope.viewMode = function() {
+                if (currentTransType == '0') {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.addMoreCuts = function() {
+                if (currentTransType == '0') {
+                    return false;
+                }
+
+                if (currentTransType == '4' && $scope.numberCutsAdded >= 1) {
+                    return false;
+                }
+
+                return true;
+            };
+
+            function deserializeData() {
+                // Belting grid data
+                $scope.itemID = jsonData.ItemID;
+                $scope.itemDesc = jsonData.ItemDesc;
+                $scope.lot = jsonData.Lot;
+                $scope.lotCost = jsonData.LotCost;
+                $scope.customerName = jsonData.CustomerName;
+                $scope.cutLength = jsonData.CutLength;
+                $scope.cutWidth = jsonData.CutWidth;
+                $scope.requiredCuts = jsonData.CutQty;
+                $scope.remnantLength = jsonData.RemnantLength;
+                $scope.remnantWidth = jsonData.RemnantWidth;
+                $scope.maxAvailLength = jsonData.MaxAvailLength;
+                $scope.maxAvailWidth = jsonData.MaxAvailWidth;
+                currentTransType = jsonData.CurrentTransType;
+            }
+
+            function sortByKey(array, key) {
+                array.sort(function(a, b) {
+                    var x = parseInt(a[key]); var y = parseInt(b[key]);
+                    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                });
+            }
+
+            function addGridIdToExistingCuts() {
+                for (var i = 0; i < jsonData.ExistingCuts.length; i++) {
+                    $scope.widgets.push(JSON.parse(JSON.stringify(jsonData.ExistingCuts[i])));
+                    $scope.widgets[i].GridCutID = i;
+                }
             }
 
             function addWidget (width, length) {
                 // AutoPositioning value must be declared because loaded values don't need autopositioning,
                 // but that variable needs to be erased before calling changeData. Only gridstack needs it
-                var newWidget = { Width: width, Length: length, Offcut: '', ParentId: '', Status: 6, RowStatus: '0', DisplayInfo: '', AutoPos: 1 };
+                var newWidget = { Id: 0, GridCutID: $scope.gridCutId, Width: width, Length: length, Offcut: 'N', ParentId: '', Status: 0,
+                    RowStatus: 0, DisplayInfo: '', AutoPos: 1, LengthFt: Math.floor(length / 12), LengthIn: (length % 12), LotCost: $scope.lotCost,
+                    remnantLength: $scope.remnantLength, remnantWidth: $scope.remnantWidth};
                 $scope.widgets.push(newWidget);
+
+                $scope.cutBeingMadeWidth = width;
+                $scope.cutBeingMadeLengthFt = Math.floor(length / 12);
+                $scope.cutBeingMadeLengthIn = length % 12;
+
+                $scope.lastCutAddedId = $scope.gridCutId;
+                $scope.numberCutsAdded++;
             }
 
-            $scope.removeWidget = function(w) {
-                var index = $scope.widgets.indexOf(w);
+            function removeWidget (gridCutId) {
+                // Get widget index
+                var index = $scope.widgets.findIndex(
+                    function(data) {
+                        return data.GridCutID == gridCutId;
+                    }
+                );
+
+                var widget = JSON.parse(JSON.stringify($scope.widgets[index]));
+                // Erase from widgets
                 $scope.widgets.splice(index, 1);
 
-                var removedCut = {Id: w.Id, X: w.X, Y: w.Y, Width: w.Width, Length: w.Length, Offcut: w.Offcut,
-                    ParentId: w.ParentId, Status: w.Status, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo };
+                // Erase from cuts to add or send to currentCuts to erase it if it does not exist in the current session
+                if (cutsIdToAdd.includes(gridCutId)) {
+                    var indexCut = cutsIdToAdd.indexOf(gridCutId);
+                    cutsIdToAdd.splice(indexCut, 1);
+                }
+                else {
+                    var removedCut = { GridCutID: widget.GridCutID, Id: widget.Id, X: widget.X, Y: widget.Y, Width: widget.Width,
+                        Length: widget.Length, Offcut: widget.Offcut, ParentId: widget.ParentId, Status: widget.Status, RowStatus: '2',
+                        DisplayInfo: widget.DisplayInfo };
 
-                //add to currentCuts
-                saveData(removedCut);
-            };
+                    // Save as a removed cut
+                    jsonData.CurrentCuts.push(removedCut);
+                }
+
+                // Remove the cut from cutsToUpdate if it exists
+                var indexCutsToUpdate = cutsToUpdate.findIndex(
+                    function(data) {
+                        return data.GridCutID == gridCutId;
+                    }
+                );
+
+                if (indexCutsToUpdate != -1) {
+                    // Remove from cuts that need to be updated
+                    cutsToUpdate.splice(indexCutsToUpdate, 1);
+                }
+
+                // Decrease number of cuts added
+                $scope.numberCutsAdded--;
+            }
 
             function getItemById (id) {
                 return jsonData.ExistingCuts.filter(
@@ -508,154 +602,282 @@
                 );
             }
 
-            $scope.onResizeStop = function(event, ui) {
-                var element = event.target;
-                var id = angular.element(element).attr('data-id');
-                var item = getItemById(id);
+            function changeLengthById(gridCutId, length) {
+                // Get widget index
+                var index = $scope.widgets.findIndex(
+                    function(data) {
+                        return data.GridCutID == gridCutId;
+                    }
+                );
 
-                // get item and update current cuts
-                saveData(item);
-            };
-
-            $scope.onItemAdded = function(item) {
-                // Add cuts created in the UI to the belt-grid variable
-                if (item.autoPosition) {
-                    var newCut = { X: item.x, Y: item.y, Width: item.width, Length: item.height, Offcut: '',
-                        ParentId: '', Status: '', RowStatus: '', DisplayInfo: '' };
-
-                    saveData(newCut);
+                if (length) {
+                    $scope.widgets[index].LengthFt = Math.floor(length / 12);
+                    $scope.widgets[index].LengthIn = length % 12;
+                }
+                else {
+                    $scope.widgets[index].LengthFt = Math.floor($scope.widgets[index].Length / 12);
+                    $scope.widgets[index].LengthIn = $scope.widgets[index].Length % 12;
                 }
 
-                // Figure out how to lock the created item
-                angular.element('.grid-stack').each(function (idx, gsEl) {
-                    angular.element(gsEl).data('gridstack').locked('.grid-stack-item', true);
-                });
+                if (gridCutId == $scope.lastCutAddedId && length) {
+                    $scope.cutBeingMadeLengthFt = Math.floor(length / 12);
+                    $scope.cutBeingMadeLengthIn = length % 12;
+                    $scope.cutBeingMadeWidth = $scope.widgets[index].Width;
+                }
+                else if (gridCutId == $scope.lastCutAddedId) {
+                    $scope.cutBeingMadeLengthFt = Math.floor($scope.widgets[index].Length / 12);
+                    $scope.cutBeingMadeLengthIn = $scope.widgets[index].Length % 12;
+                    $scope.cutBeingMadeWidth = $scope.widgets[index].Width;
+                }
+            }
+
+            $scope.onResizeStop = function(event) {
+                var element = event.target;
+                var id = angular.element(element).attr('id').slice(4);
+
+                changeLengthById(id);
             };
 
-            $scope.offcutX = function (w) {
-                var posX = w.X + w.Width;
-                var offcutWidth = $scope.beltWidth - w.Width;
+            $scope.onItemAdded = function(item, currentCut) {
+                var grid = angular.element('.grid-stack').data('gridstack');
 
-                // TODO: ADD ID
-                var newOffcut = { X: posX, Y: w.Y, Width: offcutWidth, Length:w.Length, Offcut: 'Y',
-                    ParentId: w.Id, Status: 5, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo};
-                $scope.widgets.push(newOffcut);
+                // Add UI id and lengthFt/In  to the cuts coming from the backend
+                if (currentCut.Id) {
+                    currentCut.LengthFt = Math.floor(currentCut.Length / 12);
+                    currentCut.LengthIn = currentCut.Length % 12;
+                }
+                // Add cuts created in this specific session
+                else {
+                    cutsIdToAdd.push($scope.gridCutId);
+                }
 
-                //add to currentCuts
-                saveData(newOffcut);
+                // Add offcut id to offcuts created in other sessions
+                if (currentCut.Id && currentCut.ParentId) {
+                    var originalCut = document.querySelector('[data-item-id="' + currentCut.ParentId + '"]');
+                    originalCut.setAttribute('data-offcut-id', $scope.gridCutId);
+                    grid.movable(originalCut, false);
+                    grid.resizable(originalCut, false);
+                }
+
+                // Only current cuts are able to move in the grid
+                if (currentCut.Status == '0' && currentTransType != '0') {
+                    grid.movable(item.el, true);
+                    grid.resizable(item.el, true);
+                }
+
+                var element = document.getElementById('cut_' + $scope.gridCutId);
+                var id = $(element).attr('data-item-id');
+                var existingCut = getItemById(id);
+
+                grid.locked(item.el, true);
+
+                // Update Y position for cuts coming from previous sessions
+                if (existingCut[0] != undefined && existingCut[0].Y !== $(element).attr('data-gs-y')) {
+                    grid.move(item.el, null, parseInt(existingCut[0].Y));
+                }
+
+                // Update Y for horizontal offcuts with the Y position of its parent
+                if (currentCut.UpdateY) {
+                    var originalCut = document.getElementById('cut_' + currentCut.ParentId).dataset;
+                    grid.move(item.el, null, parseInt(originalCut.gsY));
+                }
+
+                $scope.gridCutId++;
             };
 
-            $scope.offcutY = function (w) {
-                var posY = w.Y + w.Length;
-                var offcutLength = ($scope.beltLength * 12) - w.Length;
+            function createOffcutX (currentCut, parentId) {
+                var offcutWidth = 0;
+                var newOffcut = {};
+                var grid = angular.element('.grid-stack').data('gridstack');
 
-                // TODO: ADD ID
-                var newOffcut = { X: w.X, Y:posY, Width: w.Width, Length: offcutLength, Offcut: 'Y',
-                    ParentId: w.Id, Status: 5, RowStatus: w.RowStatus, DisplayInfo: w.DisplayInfo};
-                $scope.widgets.push(newOffcut);
-
-                //add to currentCuts
-                saveData(newOffcut);
-            };
-
-            $scope.validateCreateOffcut = function (currentCut) {
-                var cutNextToXPos = false;
-                var cutNextToYPos = false;
-                var edgeOfGrid = false;
-                var endOfGridY = false;
-
-                console.log(currentCut);
-
-                $('.grid-stack-item').each(function (idx, gsEl) {
-                    var elementData = gsEl.dataset;
-                    if (currentCut.Id != elementData.id) {
-                        // if grid has no empty space horizontally
-                        if ((currentCut.Y + currentCut.Length - 1 > elementData.gsY && currentCut.Y < elementData.gsY + elementData.gsWidth)) {
-                            cutNextToXPos = true;
+                if (currentCut.X == 0) {
+                    var closestCutX = $scope.beltWidth;
+                    angular.element('.grid-stack-item').each(function (idx, gsEl) {
+                        var elementData = gsEl.dataset;
+                        if (currentCut.GridCutId != elementData.gridId) {
+                            // Get which cuts are on the same Y range and get the closest
+                            if (currentCut.Y + currentCut.Length > parseInt(elementData.gsY) &&
+                                    currentCut.Y < parseInt(elementData.gsY) + parseInt(elementData.gsHeight) &&
+                                    parseInt(elementData.gsX) > currentCut.X) {
+                                if (closestCutX > parseInt(elementData.gsX)) {
+                                    closestCutX = parseInt(elementData.gsX);
+                                }
+                            }
                         }
-                        // if grid has no empty space vertically
-                        if (currentCut.Y + currentCut.Length == elementData.gsY &&
-                            currentCut.X < elementData.gsX + elementData.gsWidth &&
-                            currentCut.X + currentCut.Width > elementData.gsX ) {
-                        // (currentCut.X < elementData.gsX + elementData.gsWidth &&
-                        //         currentCut.X + currentCut.Width > elementData.gsX &&
-                        //         currentCut.Y < elementData.gsY) {
-                            //console.log("X:" + currentCut.X + " Y:" + currentCut.Y + " Width:" + currentCut.Width + " Length: " + currentCut.Length);
-                            //console.log("gsX:" + elementData.gsX + " gsY:" + elementData.gsY + " gsWidth:" + elementData.gsWidth);
-                            //console.log(elementData.gsWidth);
-                            console.log("e");
-                            cutNextToYPos = true;
+                    });
+
+                    offcutWidth = closestCutX - currentCut.Width;
+                    newOffcut = { Id: 0, GridCutID: $scope.gridCutId, X: currentCut.X + currentCut.Width, Y: currentCut.Y, Width: offcutWidth,
+                        Length: currentCut.Length, Offcut: 'Y', ParentId: parentId, Status: 5, RowStatus: 3, DisplayInfo: currentCut.DisplayInfo,
+                        UpdateY: true};
+                }
+                else {
+                    var closestCutX = 0;
+                    angular.element('.grid-stack-item').each(function (idx, gsEl) {
+                        var elementData = gsEl.dataset;
+                        if (currentCut.GridCutId != elementData.gridId) {
+                            // Get which cuts are on the same Y range and get the closest
+                            if (currentCut.Y + currentCut.Length > parseInt(elementData.gsY) &&
+                                    currentCut.Y < parseInt(elementData.gsY) + parseInt(elementData.gsHeight) &&
+                                    parseInt(elementData.gsX) < currentCut.X) {
+                                if (parseInt(elementData.gsX) + parseInt(elementData.gsWidth) > closestCutX) {
+                                    closestCutX = parseInt(elementData.gsX) + parseInt(elementData.gsWidth);
+                                }
+                            }
+                        }
+                    });
+
+                    offcutWidth = $scope.beltWidth - closestCutX - currentCut.Width;
+                    newOffcut = { Id: 0, GridCutID: $scope.gridCutId, X: closestCutX, Y: currentCut.Y, Width: offcutWidth, Length: currentCut.Length,
+                        Offcut: 'Y', ParentId: parentId, Status: 5, RowStatus: 3, DisplayInfo: currentCut.DisplayInfo, UpdateY: true};
+                }
+
+                // Double check if offcut calculations are valid
+                if (grid.willItFit(newOffcut.X, newOffcut.Y, newOffcut.Width, newOffcut.Length, false)) {
+                    $scope.widgets.push(newOffcut);
+                }
+                else {
+                    // Return empty object if its not valid
+                    newOffcut = {};
+                }
+
+                return newOffcut;
+            }
+
+            function createOffcutY (currentCut, parentId) {
+                var closestCutY = ($scope.beltLength * 12);
+                var grid = angular.element('.grid-stack').data('gridstack');
+                var newOffcut = {};
+
+                angular.element('.grid-stack-item').each(function (idx, gsEl) {
+                    var elementData = gsEl.dataset;
+                    if (currentCut.GridCutId != elementData.gridId) {
+                        // Get which cuts are on the same X range and get the closest
+                        if (currentCut.X + currentCut.Width > parseInt(elementData.gsX) &&
+                                currentCut.X < parseInt(elementData.gsX) + parseInt(elementData.gsWidth) &&
+                                parseInt(elementData.gsY) > currentCut.Y) {
+                            if (closestCutY > parseInt(elementData.gsY)) {
+                                closestCutY = parseInt(elementData.gsY);
+                            }
                         }
                     }
                 });
 
-                // if the cut is on the edge of the grid
-                if (currentCut.X == 0 || currentCut.X + currentCut.Width == $scope.beltWidth) {
-                    edgeOfGrid = true;
+                var offcutLength = closestCutY - currentCut.Length - currentCut.Y;
+
+                if (grid.willItFit(currentCut.X, currentCut.Y + currentCut.Length, currentCut.Width, offcutLength, false)) {
+                    newOffcut = { Id: 0, GridCutID: $scope.gridCutId, X: currentCut.X, Y: currentCut.Y + currentCut.Length, Width: currentCut.Width,
+                        Length: offcutLength, Offcut: 'Y', ParentId: parentId, Status: 5, RowStatus: 3, DisplayInfo: currentCut.DisplayInfo};
+
+                    $scope.widgets.push(newOffcut);
                 }
 
-                // if the cut is at the end of the grid vertically
-                if (currentCut.Y + currentCut.Length == $scope.Length) {
-                    endOfGridY = true;
-                }
-
-                if (!cutNextToXPos && edgeOfGrid) {
-                    //currentCut.classList.add('offcutX');
-                    console.log("Can create offcut X");
-                }
-                else {
-                    //currentCut.classList.remove('offcutX');
-                }
-
-                 // show vertical offcut option for idLastY
-                if (!cutNextToYPos && !endOfGridY ) {
-                    //currentCut.classList.add('offcutY');
-                    console.log("Can create offcut Y ");
-                }
-                else {
-                    //currentCut.classList.remove('offcutY');
-                }
+                return newOffcut;
             }
 
-            function deserializeData() {
-                // Belting grid data
-                $scope.itemID = jsonData.ItemID;
-                $scope.itemDesc = jsonData.ItemDesc;
-                $scope.lot = jsonData.Lot;
-                $scope.lotCost = jsonData.LotCost;
-                $scope.customerName = jsonData.CustomerName;
+            function validateCreateOffcut (currentCut) {
+                var canCreateOffcutX = false;
+                var canCreateOffcutY = false;
+
+                var grid = angular.element('.grid-stack').data('gridstack');
+
+                // Check there are no adjacent cuts for X
+                if ((currentCut.X == 0 && grid.isAreaEmpty(currentCut.X + currentCut.Width, currentCut.Y, 1, currentCut.Length)) ||
+                    (currentCut.X + currentCut.Width == $scope.beltWidth) && grid.isAreaEmpty(currentCut.X - 1, currentCut.Y, 1, currentCut.Length)) {
+                    canCreateOffcutX = true;
+                }
+
+                // Check there are no adjacent cuts for Y and it's not on beltLength limit
+                if (grid.isAreaEmpty(currentCut.X, currentCut.Y + currentCut.Length, currentCut.Width, 1) &&
+                    grid.willItFit(currentCut.X, currentCut.Y + currentCut.Length, currentCut.Width, 1, false)) {
+                    canCreateOffcutY = true;
+                }
+
+                return [canCreateOffcutX, canCreateOffcutY];
+            }
+
+            function willResizeFit (currentCut, newWidth, newLength) {
+                var grid = angular.element('.grid-stack').data('gridstack');
+                var xPos = parseInt(currentCut.X);
+                var yPos = parseInt(currentCut.Y);
+                var width = parseInt(currentCut.Width);
+                var length = parseInt(currentCut.Length);
+
+                // check if new width is valid
+                if (newWidth > width) {
+                    if (!grid.isAreaEmpty(xPos + width, yPos, newWidth - width, length) ||
+                        (newWidth + xPos) > parseInt($scope.beltWidth)) {
+                        return false;
+                    }
+                }
+
+                // check if new length is valid
+                if (newLength > length) {
+                    if (!grid.willItFit(xPos, yPos + length, width, newLength - length, false) ||
+                        !grid.isAreaEmpty(xPos, yPos + length, width, newLength - length)) {
+                        return false;
+                    }
+                }
+
+                if (newWidth > width && newLength > length) {
+                    if (!grid.isAreaEmpty(xPos + width, yPos + length, newWidth - width, newLength - length)) {
+                        return false;
+                    }
+                }
+                return true;
             }
 
             function createRulerDimensions() {
                 var numItemsHorizontal = $scope.beltWidth / 12;
-                var numItemsVertical = $scope.beltLength / 20;
-                //var scaleWidthToHeight = 1;
-
+                var numItemsVertical = $scope.beltLength / 5;
                 var rulerHorizontal = document.querySelector('.ruler-horizontal');
                 var rulerVertical = document.querySelector('.ruler-vertical');
-                var i = 0;
 
-                rulerVertical.style.height = ($scope.beltLength * 20) + 'px';
+                rulerVertical.style.height = (($scope.beltLength + 1) * 20) + 'px';
 
-                for (i = 0; i <= numItemsHorizontal; i++) {
+                for (var i = 0; i <= numItemsHorizontal; i++) {
                     var element = document.createElement('div');
                     element.className = 'in';
                     element.dataset.text = (i * 12) + '.0"';
                     rulerHorizontal.appendChild(element);
                 }
 
-                for (i = 0; i <= numItemsVertical; i++) {
+                for (var i = 0; i <= numItemsVertical; i++) {
                     var element = document.createElement('div');
                     element.className = 'in';
-                    element.dataset.text = (i * 20) + '.0\'';
+                    element.dataset.text = (i * 5) + '.0\'';
+                    rulerVertical.appendChild(element);
+                }
+            }
+
+            function createRulerDimensionsDesc() {
+                var numItemsHorizontal = $scope.beltWidth / 12;
+                var numItemsVertical = $scope.beltLength / 5;
+                var rulerHorizontal = document.querySelector('.ruler-horizontal');
+                var rulerVertical = document.querySelector('.ruler-vertical');
+
+                rulerVertical.style.height = (($scope.beltLength + 1) * 20) + 'px';
+
+                for (var i = 0; i <= numItemsHorizontal; i++) {
+                    var element = document.createElement('div');
+                    element.className = 'in';
+                    element.dataset.text = (i * 12) + '.0"';
+                    rulerHorizontal.appendChild(element);
+                }
+
+                for (var i = numItemsVertical; i >= 0; i--) {
+                    var element = document.createElement('div');
+                    element.className = 'in';
+                    element.dataset.text = (i * 5) + '.0\'';
                     rulerVertical.appendChild(element);
                 }
             }
 
             function createGridStyles() {
                 var grid = document.querySelector('#belt-grid');
-                grid.style.height = ($scope.beltLength * 20) + 'px';
-                grid.style.backgroundSize = (100 / $scope.beltWidth) + '% ' + '20px';
+                grid.style.height = (($scope.beltLength) * 20 + 1) + 'px';
+                grid.style.width = ($scope.beltWidth * 20) + 'px';
+                grid.style.backgroundSize = (100 / ($scope.beltWidth + 1)) + '% ' + '20px';
             }
 
             function setZoom(zoom, el) {
@@ -675,9 +897,9 @@
             }
 
             $scope.changeZoom = function(a) {
-                var tooltips = document.querySelectorAll('.tooltip');
-                var fontSize = 1;
-                var width = 180;
+                var tooltips = document.querySelectorAll('.tooltiptext');
+                var fontSize = 4.5;
+                var width = 200;
                 var height = 140;
 
                 if (($scope.zoom != 7 && a != 1) || ($scope.zoom != 14 && a != -1)) {
@@ -689,66 +911,224 @@
                     // rulerHorizontal.style.width = `${widthHorizontalRuler * zoomScale}px`;
                     // rulerVertical.style.height = `${widthVerticalRuler * zoomScale}px`;
 
-                    // Keep tooltips with the same size no matter if zoom changes
-                    if ($scope.zoom < 10) {
-                        tooltips.forEach(tooltip => {
-                            tooltip.style.fontSize = `${fontSize / zoomScale}em`;
-                            tooltip.style.width = `${width / zoomScale}px`;
-                        });
-                    }
+                    // TODO: Add tooltips functions when cuts get too small
+                    // if (zoom < 10) {
+                    //     tooltips.forEach(tooltip => {
+                    //         tooltip.style.fontSize = `${fontSize / zoomScale}em`;
+                    //         tooltip.style.width = `${width / zoomScale}px`;
+                    //         tooltip.style.height = `${height / zoomScale}px`;
+                    //     });
+                    // }
                 }
                 //gridData['DemoGrid'].hideInfoCutIfOverflow();
             };
 
-            function isOverflown(element) {
-                var zoomScale = Number($scope.zoom) / 10;
-                return element.scrollHeight > element.clientHeight * zoomScale || element.scrollWidth > element.clientWidth * zoomScale;
-            }
+            $scope.addNewCut = function () {
+                var newScope = $rootScope.$new(true);
+                newScope.cutLength = $scope.cutLength;
+                newScope.cutWidth = $scope.cutWidth;
 
-            // $scope.showTooltip = function(el) {
-            //     var element = el.currentTarget.childNodes[1];
-            //     el.currentTarget.style.zIndex = 2;
-            //     if (isOverflown(el.currentTarget)) {
-            //         element.style.visibility = "visible";
-            //     }
-            // }
+                epModalDialogService.showCustomDialog({
+                    templateOptions: {
+                        templateUrl: 'app/directives/belt-grid/addCut.html',
+                        templateScope: newScope
+                    },
+                    title: 'Enter Cut Size',
+                    status: 'information',
+                    backdrop: true,
+                    buttons: [{
+                        text: 'Save',
+                        type: 'primary',
+                        action:function(){
+                            var width = parseInt(document.querySelector('.width').value);
+                            var lengthFT = parseInt(document.querySelector('.lenFT').value) || 0;
+                            var lengthIN = parseInt(document.querySelector('.lenIN').value) || 0;
+                            var totalLength = (lengthFT * 12) + lengthIN;
 
-            // $scope.hideTooltip = function(el) {
-            //     var element = el.currentTarget.childNodes[1];
-            //     el.currentTarget.style.zIndex = 1;
-            //     element.style.visibility = "hidden";
-            // }
-
-            $scope.buttonSaveData = function() {
-                windowService.runWindowTool($scope, 'cb_ok');
+                            var grid = angular.element('.grid-stack').data('gridstack');
+                            if (grid.willItFit(0, 0, width, totalLength, true) && width <= $scope.beltWidth) {
+                                addWidget(width, totalLength);
+                            }
+                            else {
+                                // eslint-disable-next-line no-alert
+                                alert('Not enough free space to place cut');
+                            }
+                        }
+                    }, {
+                        text: 'Cancel',
+                        isCancel: true
+                    }],
+                    closeButton: true
+                });
             };
 
-            // $scope.addNewCut = function () {
-            //     epModalDialogService.showCustomDialog({
-            //         templateOptions: {
-            //             templateUrl: 'app/directives/belt-grid/newcut.html'
-            //         },
-            //         title: 'Enter Cut Size',
-            //         status: 'information',
-            //         backdrop: true,
-            //         buttons: [{
-            //             text: 'Save',
-            //             type: 'primary',
-            //             action:function(){
-            //                 var width = parseInt(document.querySelector('.width').value);
-            //                 var lengthFT = parseInt(document.querySelector('.lenFT').value);
-            //                 var lengthIN = parseInt(document.querySelector('.lenIN').value);
-            //
-            //                 var totalLength = (lengthFT * 12) + lengthIN
-            //                 addWidget(width, length);
-            //             }
-            //         }, {
-            //             text: 'Cancel',
-            //             isCancel: true
-            //         }],
-            //         closeButton: true
-            //     });
-            // };
+            $scope.editCut = function (currentCut, event) {
+                currentCut.X = parseInt(currentCut.X);
+                currentCut.Y = parseInt(currentCut.Y);
+                currentCut.Width = parseInt(currentCut.Width);
+                currentCut.Length = parseInt(currentCut.Length);
+
+                var currentCutGridId = angular.element(event.target).parents('.grid-stack-item')[0].id.replace('cut_', '');
+                var currentCutElement = document.getElementById('cut_' + currentCutGridId);
+                var currentCutId = currentCutElement.getAttribute('data-item-id');
+                var offcutId = currentCutElement.getAttribute('data-offcut-id');
+                var values = validateCreateOffcut(currentCut);
+                var canCreateOffcutX = values[0];
+                var canCreateOffcutY = values[1];
+                var grid = angular.element('.grid-stack').data('gridstack');
+                var element = event.target;
+                var el = angular.element(element).parents('.grid-stack-item');
+
+                var template = '<div id="belt-cut-edit" title="Cut Settings">';
+
+                if (offcutId) {
+                    template += '<button class="btn" ng-click="removeOffcut()"> Remove Offcut</button></div>';
+                }
+                else {
+                    template +=
+                    '<div class="info">' +
+                            '<div>' +
+                                'Length:' +
+                                '<input type="text" class="lenFT" value="' + Math.floor(currentCut.Length / 12) + '"> FT ' +
+                                '<input type="text" class="lenIN" value="' + currentCut.Length % 12 + '"> IN ' +
+                            '</div>' +
+                            '<div>' +
+                                'Width: <input type="text" class="width" value="' + currentCut.Width + '"> IN ' +
+                            '</div>' +
+                    '</div>';
+                    if (canCreateOffcutX && currentTransType == '3' && !offcutId) {
+                        template += '<button class="btn" ng-click="offcutX()"> Horizontal Offcut</button>';
+                    }
+
+                    if (canCreateOffcutY && currentTransType == '3' && !offcutId) {
+                        template += '<button class="btn" ng-click="offcutY()"> Vertical Offcut</button>';
+                    }
+
+                    template += '<button class="btn" ng-click="remove()"> Remove</button></div>';
+                }
+
+                epModalDialogService.showCustomDialog({
+                    templateOptions: {
+                        template: template
+                    },
+                    title: 'Edit Cut Size',
+                    status: 'information',
+                    backdrop: true,
+                    buttons: [{
+                        text: 'OK',
+                        type: 'primary',
+                        action:function(){
+                            /* Edit cut info */
+                            var width = parseInt(document.querySelector('.width').value);
+                            var lengthFT = parseInt(document.querySelector('.lenFT').value) || 0;
+                            var lengthIN = parseInt(document.querySelector('.lenIN').value) || 0;
+                            var totalLength = (lengthFT * 12) + lengthIN;
+
+                            if (willResizeFit(currentCut, width, totalLength)) {
+                                grid.resize(el, width, totalLength);
+                                changeLengthById(currentCutGridId, totalLength);
+                            }
+                            else {
+                                // eslint-disable-next-line no-alert
+                                alert('Not a valid size');
+                            }
+                        }
+                    }, {
+                        text: 'Cancel',
+                        isCancel: true
+                    }],
+                    controller: /*@ngInject*/ function ($scope) {
+                        $scope.offcutX = function () {
+                            var createdOffcut = createOffcutX(currentCut, currentCutGridId);
+                            epModalDialogService.hide('current');
+                            // Validate createdOffcut is not empty
+                            if (JSON.stringify(createdOffcut) != JSON.stringify({})) {
+                                currentCutElement.setAttribute('data-offcut-id', createdOffcut.GridCutID);
+                                editOffcutCost(currentCut, createdOffcut);
+                                grid.resizable(el, false);
+                                grid.movable(el, false);
+                            }
+                            else {
+                                // eslint-disable-next-line no-alert
+                                alert('Error creating offcut');
+                            }
+                        };
+
+                        $scope.offcutY = function () {
+                            var createdOffcut = createOffcutY(currentCut, currentCutGridId);
+                            epModalDialogService.hide('current');
+                            // Validate createdOffcut is not empty
+                            if (JSON.stringify(createdOffcut) != JSON.stringify({})) {
+                                currentCutElement.setAttribute('data-offcut-id', createdOffcut.GridCutID);
+                                editOffcutCost(currentCut, createdOffcut);
+                                grid.resizable(el, false);
+                                grid.movable(el, false);
+                            }
+                            else {
+                                // eslint-disable-next-line no-alert
+                                alert('Error creating offcut');
+                            }
+                        };
+
+                        $scope.remove = function() {
+                            removeWidget(parseInt(currentCutGridId));
+                            epModalDialogService.hide('current');
+                        };
+
+                        $scope.removeOffcut = function() {
+                            removeWidget(parseInt(offcutId));
+                            currentCutElement.setAttribute('data-offcut-id', '');
+                            epModalDialogService.hide('current');
+                            grid.resizable(el, true);
+                            grid.movable(el, true);
+                        };
+                    },
+                    closeButton: true
+                });
+            };
+
+            function editOffcutCost(currentCut, offcut) {
+                var newScope = $rootScope.$new(true);
+                newScope.currentCut = currentCut;
+                newScope.offcut = offcut;
+                newScope.itemID = $scope.itemID;
+                newScope.itemDesc = $scope.itemDesc;
+                newScope.cutLength = $scope.cutLength;
+                newScope.cutWidth = $scope.cutWidth;
+                newScope.remnantLength = currentCut.remnantLength;
+                newScope.remnantWidth = currentCut.remnantWidth;
+
+                newScope.totalQty = (currentCut.Width * currentCut.Length) + (offcut.Width * offcut.Length);
+                newScope.offcutCostPercentage = (offcut.Width * offcut.Length) / newScope.totalQty * 100;
+                newScope.offcutCost = (offcut.Width * offcut.Length * currentCut.LotCost);
+                newScope.maxOffcutPercentage = (offcut.Width * offcut.Length) / newScope.totalQty * 100; //It is used to hold the original amount to be used in validations)
+                newScope.maxOffcutCost = (offcut.Width * offcut.Length * currentCut.LotCost); //It is used to hold the original amount to be used in validations
+                newScope.totalCost = currentCut.LotCost * newScope.totalQty;
+
+                newScope.cutPercentage = 100 - newScope.offcutCostPercentage;
+                newScope.cutCost = ((newScope.totalQty * newScope.cutPercentage) / 100) * currentCut.LotCost;
+
+                epModalDialogService.showCustomDialog({
+                    templateOptions: {
+                        templateUrl: 'app/directives/belt-grid/editoffcutcost.html',
+                        templateScope: newScope
+                    },
+                    title: 'Calculate Cost',
+                    status: 'information',
+                    backdrop: true,
+                    buttons: [{
+                        text: 'Save',
+                        type: 'primary',
+                        action:function(){
+                            /* Edit cut info */
+                        }
+                    }],
+                    controller: /*@ngInject*/ function () {
+                        //$scope.currentCut = w;
+                    },
+                    closeButton: true
+                });
+            }
 
             function createCSSFile() {
                 var style = document.createElement('style');
@@ -761,10 +1141,10 @@
                     var xPositionClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-x="' + i + '"] {' +
                             'left: ' + (100 / columns) * i + '%; ' +
                         '}';
-                    var minWidthClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-min-width="' + i + '"] {' + 
+                    var minWidthClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-min-width="' + i + '"] {' +
                             'min-width: ' + (100 / columns) * i + '%; ' +
                         '}';
-                    var maxWidthClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-max-width="' + i + '"] {' + 
+                    var maxWidthClass = '#belt-grid .grid-stack > .grid-stack-item[data-gs-max-width="' + i + '"] {' +
                             'max-width: ' + (100 / columns) * i + '%; ' +
                         '}';
 
@@ -776,14 +1156,62 @@
                 document.head.appendChild(style);
             }
 
+            function getItemsToUpdate() {
+                return $scope.widgets.filter(
+                    function(data) {
+                        return data.Status == '0';
+                    }
+                );
+            }
+
+            $scope.buttonSaveData = function() {
+                for (var i = 0; i < cutsIdToAdd.length; i++) {
+                    // get element
+                    var element = document.getElementById('cut_' + cutsIdToAdd[i]).dataset;
+                    // pass data to array
+                    var addedCut = { Id: 0, GridCutID: cutsIdToAdd[i], X: element.gsX, Y: element.gsY, Width: element.gsWidth, Length: element.gsHeight,
+                        Offcut: element.isOffcut, ParentId: element.parentId, Status: parseInt(element.status),
+                        RowStatus: parseInt(element.rowStatus), DisplayInfo: '' };
+                    // push to current cuts
+                    jsonData.CurrentCuts.push(addedCut);
+                }
+
+                for (var i = 0; i < cutsToUpdate.length; i++) {
+                    // get element
+                    var element = document.querySelector('[data-item-id=\'' + cutsToUpdate[i].Id + '\']').dataset;
+                    // pass data to array
+                    var editedCut = {GridCutID: cutsToUpdate[i].GridCutID, Id: cutsToUpdate[i].Id, X: element.gsX, Y: element.gsY, Width: element.gsWidth, Length: element.gsHeight,
+                        Offcut: cutsToUpdate[i].Offcut, ParentId: cutsToUpdate[i].ParentId, Status: parseInt(cutsToUpdate[i].Status),
+                        RowStatus: 1, DisplayInfo: cutsToUpdate[i].DisplayInfo };
+                    // push to current cuts
+                    jsonData.CurrentCuts.push(editedCut);
+                }
+
+                windowService.changeData($scope, '_dw_belt_info_json.belt_info_json', JSON.stringify(jsonData)).then(
+                    function() {
+                        windowService.runWindowTool($scope, 'cb_ok');
+                    }
+                );
+            };
+
+            $scope.buttonCancel = function() {
+                windowService.runWindowTool($scope, 'cb_cancel');
+            };
+
             var init = function () {
                 deserializeData();
+                // Sort Y positions to avoid position errors and cuts out of place
+                sortByKey(jsonData.ExistingCuts, 'Y');
+                addGridIdToExistingCuts();
                 createCSSFile();
-                createRulerDimensions();
                 createGridStyles();
+                cutsToUpdate = getItemsToUpdate();
+                $scope.numberCutsAdded = cutsToUpdate.length;
+                createRulerDimensions();
             };
 
             init();
+        }
         });
     </script>
 
